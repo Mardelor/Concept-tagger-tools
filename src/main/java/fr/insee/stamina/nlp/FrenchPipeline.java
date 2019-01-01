@@ -13,6 +13,8 @@ import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.semgraph.SemanticGraph;
+import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.BasicDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 
 /**
@@ -38,7 +40,7 @@ public class FrenchPipeline {
 		// See https://stanfordnlp.github.io/CoreNLP/dependencies.html
 		// frProperties.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
 		// frProperties.put("annotators", "tokenize, ssplit, pos, custom.lemma, ner");
-		frProperties.put("annotators", "tokenize, ssplit, pos, custom.lemma");
+		frProperties.put("annotators", "tokenize, ssplit, pos, custom.lemma, depparse");
 
 		// Adding option for the tokenizer (https://stanfordnlp.github.io/CoreNLP/tokenize.html)
 		frProperties.setProperty("tokenize.options", "untokenizable=noneDelete"); // Silently deletes untokenizable sequences
@@ -48,7 +50,7 @@ public class FrenchPipeline {
 
 		// Default option french-ud is OK for the POS tagger (https://github.com/stanfordnlp/CoreNLP/issues/312)
 
-		// Adding reference of custom lemmatizer
+		// Adding reference of custom lemmatizer and pointer to lexicon file
 		frProperties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.FrenchLemmaAnnotator");
 		frProperties.setProperty("french.lemma.lemmaFile", "src/main/resources/data/lexique_fr.txt");
 
@@ -77,6 +79,9 @@ public class FrenchPipeline {
 
 				System.out.println("\n" + word + "\n. POS: " + pos + "\n. LEMMA: " + lemma);
 			}
+			// Dependency graph of the sentence
+			SemanticGraph dependencies = sentence.get(BasicDependenciesAnnotation.class);
+			System.out.println("Dependencies:\n" + dependencies);
 			System.out.println("\n----------------------");
 		}
 	}
@@ -85,3 +90,4 @@ public class FrenchPipeline {
 
 // Resources:
 // The OpeNER project (FP7): http://www.opener-project.eu/
+// Ambiverse NLU: https://github.com/ambiverse-nlu/ambiverse-nlu
