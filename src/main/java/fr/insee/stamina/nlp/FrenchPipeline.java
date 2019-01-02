@@ -7,6 +7,7 @@ import java.util.Properties;
 import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.CoreAnnotations.LemmaAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.NamedEntityTagAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
@@ -40,7 +41,7 @@ public class FrenchPipeline {
 		// See https://stanfordnlp.github.io/CoreNLP/dependencies.html
 		// frProperties.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
 		// frProperties.put("annotators", "tokenize, ssplit, pos, custom.lemma, ner");
-		frProperties.put("annotators", "tokenize, ssplit, pos, custom.lemma, depparse");
+		frProperties.put("annotators", "tokenize, ssplit, pos, custom.lemma, depparse, ner");
 
 		// Adding option for the tokenizer (https://stanfordnlp.github.io/CoreNLP/tokenize.html)
 		frProperties.setProperty("tokenize.options", "untokenizable=noneDelete"); // Silently deletes untokenizable sequences
@@ -53,6 +54,9 @@ public class FrenchPipeline {
 		// Adding reference of custom lemmatizer and pointer to lexicon file
 		frProperties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.FrenchLemmaAnnotator");
 		frProperties.setProperty("french.lemma.lemmaFile", "src/main/resources/data/lexique_fr.txt");
+
+		// Adding pointer to entity file
+		frProperties.setProperty("ner.model", "src/main/resources/data/eunews.fr.crf.gz");
 
 		System.out.println("\nModified pipeline properties:");
 		for (Object key : frProperties.keySet()) System.out.println(key + " = " + frProperties.get(key));
@@ -74,15 +78,19 @@ public class FrenchPipeline {
 			for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
 				// Text of the token
 				String word = token.get(TextAnnotation.class);
-				String pos = token.get(PartOfSpeechAnnotation.class);
+				// LEMMA tag of the token
 				String lemma = token.get(LemmaAnnotation.class);
+				// POS tag of the token
+				String pos = token.get(PartOfSpeechAnnotation.class);
+				// NER label of the token
+				String ne = token.get(NamedEntityTagAnnotation.class);
 
-				System.out.println("\n" + word + "\n. POS: " + pos + "\n. LEMMA: " + lemma);
+				System.out.println("\n" + word + "\n. POS: " + pos + "\n. LEMMA: " + lemma + "\n. NER: " + ne);
 			}
 			// Dependency graph of the sentence
 			SemanticGraph dependencies = sentence.get(BasicDependenciesAnnotation.class);
-			System.out.println("Dependencies:\n" + dependencies);
 			System.out.println("\n----------------------");
+			System.out.println("Dependencies:\n" + dependencies);
 		}
 	}
 }
