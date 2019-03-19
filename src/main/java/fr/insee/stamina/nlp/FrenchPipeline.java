@@ -1,8 +1,12 @@
 package fr.insee.stamina.nlp;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -19,12 +23,13 @@ import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.BasicDependenciesA
 import edu.stanford.nlp.util.CoreMap;
 
 /**
- * See http://www.erwanlenagard.com/general/tutoriel-implementer-stanford-corenlp-avec-talend-1354
+ * Pipeline for named entity recognition in French.
  * 
- * French NER dataset available at http://lab.kbresearch.nl/static/html/eunews.html
+ * Adapted from http://www.erwanlenagard.com/general/tutoriel-implementer-stanford-corenlp-avec-talend-1354
+ * 
+ * Run with -Xms2G -Xmx4G
  * 
  * @author Franck
- *
  */
 public class FrenchPipeline {
 
@@ -37,10 +42,10 @@ public class FrenchPipeline {
 		System.out.println("Default pipeline properties:");
 		for (Object key : frProperties.keySet()) System.out.println(key + " = " + frProperties.get(key));
 
-		// Specifies annotators (default in StanfordCoreNLP-french.properties is tokenize, ssplit, pos, depparse 
+		// Specify annotators (default in StanfordCoreNLP-french.properties is tokenize, ssplit, pos, depparse 
 		// See https://stanfordnlp.github.io/CoreNLP/dependencies.html
-		// frProperties.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-		// frProperties.put("annotators", "tokenize, ssplit, pos, custom.lemma, ner");
+		// We add a custom lemmatizer and a classifier for NER
+		// TODO: see if dcoref can also be added
 		frProperties.put("annotators", "tokenize, ssplit, pos, custom.lemma, depparse, ner");
 
 		// Adding option for the tokenizer (https://stanfordnlp.github.io/CoreNLP/tokenize.html)
@@ -52,10 +57,12 @@ public class FrenchPipeline {
 		// Default option french-ud is OK for the POS tagger (https://github.com/stanfordnlp/CoreNLP/issues/312)
 
 		// Adding reference of custom lemmatizer and pointer to lexicon file
+		// lexique_fr.txt can be found at https://sourceforge.net/projects/iramuteq/files/
 		frProperties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.FrenchLemmaAnnotator");
 		frProperties.setProperty("french.lemma.lemmaFile", "src/main/resources/data/lexique_fr.txt");
 
 		// Adding pointer to entity file
+		// The French NER dataset can be downloaded from http://lab.kbresearch.nl/static/html/eunews.html
 		frProperties.setProperty("ner.model", "src/main/resources/data/eunews.fr.crf.gz");
 
 		System.out.println("\nModified pipeline properties:");
@@ -63,17 +70,18 @@ public class FrenchPipeline {
 
 		StanfordCoreNLP pipeline = new StanfordCoreNLP(frProperties);
 
-		// Read some text in the text variable
-		String text = "L'enfant mange une pomme à Paris. Le soleil brille ce matin.";
+		// Read the text file to analyse into the 'text' variable
+		Path path = Paths.get("src/main/resources/data/texte.txt");
+		String text = Files.lines(path).collect(Collectors.joining("\n"));
 
-		// Create an empty Annotation just with the given text
+		// Create an empty Annotation with just the text to analyze
 		Annotation document = new Annotation(text);
-		// Run all Annotators on this text
+		// Run all Annotators of the pipeline on this text
 		pipeline.annotate(document);
 
 		List<CoreMap> sentences = document.get(SentencesAnnotation.class);
 		for (CoreMap sentence : sentences) {
-			//String word = StringHandling.DOWNCASE(token.get(TextAnnotation.class));
+			//String word = StringHandling.DOWNCASE(token.get(TextAnnotation.class)); 
 			// Traverse the words in the sentence. A CoreLabel is a CoreMap with additional token-specific methods
 			for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
 				// Text of the token

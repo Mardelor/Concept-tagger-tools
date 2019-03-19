@@ -16,13 +16,17 @@ import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.Annotator;
 import edu.stanford.nlp.util.ArraySet;
 
+/**
+ * French lemmatizer.
+ * 
+ * @author Franck
+ */
 public class FrenchLemmaAnnotator implements Annotator {
 
 	Map<String, String> wordToLemma = new HashMap<String, String>();
 
 	public FrenchLemmaAnnotator(String name, Properties properties) {
-		// load the lemma file
-		// format should be tsv with word and lemma
+		// Load the lemma file; format should be TSV: {token}<tab>{lemma}
 		String lemmaFile = properties.getProperty("french.lemma.lemmaFile");
 		List<String> lemmaEntries = IOUtils.linesFromFile(lemmaFile);
 		for (String lemmaEntry : lemmaEntries) {
@@ -30,6 +34,7 @@ public class FrenchLemmaAnnotator implements Annotator {
 		}
 	}
 
+	@Override
 	public void annotate(Annotation annotation) {
 		for (CoreLabel token : annotation.get(CoreAnnotations.TokensAnnotation.class)) {
 			String lemma = wordToLemma.getOrDefault(token.word(), token.word());
@@ -37,11 +42,13 @@ public class FrenchLemmaAnnotator implements Annotator {
 		}
 	}
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public Set<Class<? extends CoreAnnotation>> requirementsSatisfied() {
 		return Collections.singleton(CoreAnnotations.LemmaAnnotation.class);
 	}
 
+	@Override
 	@SuppressWarnings("rawtypes")
 	public Set<Class<? extends CoreAnnotation>> requires() {
 		return Collections.unmodifiableSet(new ArraySet<>(Arrays.asList(
