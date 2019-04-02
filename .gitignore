@@ -1,6 +1,14 @@
+# Files
 doc/
 logs/
+
+# Maven
 target/
+
+# Eclipse
 .settings/
 .project
 .classpath
+
+# IntelliJ
+.idea/
