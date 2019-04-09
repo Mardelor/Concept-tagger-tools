@@ -5,6 +5,7 @@
 
 # Maven
 **/target/
+**/resources/
 
 # Eclipse
 .settings/
@@ -13,4 +14,5 @@
 
 # IntelliJ
 .idea/
+out/
 **.iml
