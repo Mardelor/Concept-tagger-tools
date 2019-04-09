@@ -1,9 +1,10 @@
 # Files
-doc/
-logs/
+**/doc/
+**/logs/
+**/data/
 
 # Maven
-target/
+**/target/
 
 # Eclipse
 .settings/
@@ -12,3 +13,4 @@ target/
 
 # IntelliJ
 .idea/
+**.iml
