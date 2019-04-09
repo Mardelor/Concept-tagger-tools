@@ -41,5 +41,6 @@
 
 	<modules>
 		<module>test-core-nlp-fr</module>
+		<module>publi-parser</module>
 	</modules>
 </project>
