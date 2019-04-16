@@ -9,22 +9,22 @@ import java.io.File;
 
 public class TestS3FileManager {
 
-    private S3FileManager s3FileManager;
+    private static S3FileManager s3FileManager;
 
     @BeforeClass
-    public void setUp() {
+    public static void setUp() {
         s3FileManager = S3FileManager.getInstance();
     }
 
     @AfterClass
-    public void tearDown() {
+    public static void tearDown() {
         s3FileManager = null;
     }
 
     @Test
     public void testCopyObjectToFileSystem() {
         s3FileManager.copyObjectToFileSystem(
-                System.getenv("BUCKET_ID"),"publications/test.xml", "./src/resources/test.xml");
-        Assert.assertTrue((new File("./src/resources/test.xml")).exists());
+                System.getenv("BUCKET_ID"),"publications/test.xml", "./src/test/resources/test.xml");
+        Assert.assertTrue((new File("./src/test/resources/test.xml")).exists());
     }
 }

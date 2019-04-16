@@ -58,6 +58,9 @@ public class S3FileManager {
         S3Object object = s3.getObject(bucketName, fileKey);
 
         try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
             BufferedReader reader = new BufferedReader(new InputStreamReader(object.getObjectContent()));
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8));
             String line = null;
