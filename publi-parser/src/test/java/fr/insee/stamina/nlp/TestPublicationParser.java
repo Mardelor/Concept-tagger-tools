@@ -29,6 +29,13 @@ public class TestPublicationParser {
         ArrayList<String> tags = new ArrayList<>();
         tags.add("hello");
         tags.add("ah");
+
+        S3FileManager s3 = S3FileManager.getInstance();
+        s3.copyObjectToFileSystem(
+                System.getenv("BUCKET_ID"),
+                "publications/test.xml",
+                "./src/test/resources/test.xml"
+        );
         HashMap<String, String> res = publicationParser
                 .parse("./src/test/resources/test.xml", "root", tags);
         Assert.assertEquals("AH", res.get("ah"));

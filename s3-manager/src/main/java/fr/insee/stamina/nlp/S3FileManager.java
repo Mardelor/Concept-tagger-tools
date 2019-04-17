@@ -1,4 +1,4 @@
-package fr.insee.stamina.nlp.utils;
+package fr.insee.stamina.nlp;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicSessionCredentials;
@@ -77,7 +77,7 @@ public class S3FileManager {
 
     /**
      * Get the instance
-     * @return S3FileManager instance
+     * @return fr.insee.stamina.nlp.S3FileManager instance
      */
     public static S3FileManager getInstance() {
         if (instance == null) {

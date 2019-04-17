@@ -7,21 +7,20 @@
         <groupId>fr.insee.stamina.nlp</groupId>
         <version>0.1</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>publi-parser</artifactId>
+
+    <artifactId>concept-parser</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>2.0.0</version>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>apache-jena-libs</artifactId>
+            <version>3.9.0</version>
         </dependency>
         <dependency>
-            <groupId>fr.insee.stamina.nlp</groupId>
-            <artifactId>s3-manager</artifactId>
-            <version>0.1</version>
-            <scope>test</scope>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-csv</artifactId>
+            <version>3.9.0</version>
         </dependency>
         <dependency>
             <groupId>fr.insee.stamina.nlp</groupId>
@@ -29,18 +28,4 @@
             <version>0.1</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>8</source>
-                    <target>8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
 </project>

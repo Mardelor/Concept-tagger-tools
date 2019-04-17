@@ -1,5 +1,6 @@
-package fr.insee.stamina.nlp.utils;
+package fr.insee.stamina.nlp;
 
+import fr.insee.stamina.nlp.S3FileManager;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
