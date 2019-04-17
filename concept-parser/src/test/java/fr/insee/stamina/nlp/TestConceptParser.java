@@ -1,5 +1,8 @@
 package fr.insee.stamina.nlp;
 
+import org.apache.jena.query.*;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.junit.Test;
 
 public class TestConceptParser {
@@ -13,6 +16,8 @@ public class TestConceptParser {
                 "./src/test/resources/insee-concepts.csv"
         );
 
+        Model model = ModelFactory.createDefaultModel();
+        model.read("./src/test/resources/test.csv");
     }
 
 }
