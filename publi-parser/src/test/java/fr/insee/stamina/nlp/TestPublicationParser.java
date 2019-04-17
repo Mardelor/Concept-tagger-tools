@@ -1,4 +1,4 @@
-package fr.insee.stamina.nlp.core;
+package fr.insee.stamina.nlp;
 
 import org.junit.AfterClass;
 import org.junit.Assert;

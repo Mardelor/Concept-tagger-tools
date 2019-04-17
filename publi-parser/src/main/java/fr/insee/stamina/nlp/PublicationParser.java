@@ -1,4 +1,4 @@
-package fr.insee.stamina.nlp.core;
+package fr.insee.stamina.nlp;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -74,7 +74,7 @@ public class PublicationParser {
                 stringBuilder.append(findTextTag(children.item(i), tag));
             }
         }
-        return stringBuilder.toString();
+        return stringBuilder.toString().replaceAll("\t", "");
     }
 
     /**
