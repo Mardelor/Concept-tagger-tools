@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+    <tagOne>
+        <hello>Hello !</hello>
+        <welcome>Welcome !</welcome>
+    </tagOne>
+    <tagTwo>
+        <ah>AH</ah>
+        Ok, tails !
+    </tagTwo>
+</root>
