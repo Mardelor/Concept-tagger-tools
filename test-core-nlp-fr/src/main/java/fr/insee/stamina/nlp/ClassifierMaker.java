@@ -10,9 +10,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.stanford.nlp.ie.crf.CRFClassifier;
-import edu.stanford.nlp.ling.CoreLabel;
-
 // References: 
 // http://blog.thehumangeo.com/ner-intro.html
 // https://www.depends-on-the-definition.com/introduction-named-entity-recognition-python/
