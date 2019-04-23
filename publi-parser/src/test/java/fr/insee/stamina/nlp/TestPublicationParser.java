@@ -7,6 +7,9 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -40,5 +43,17 @@ public class TestPublicationParser {
                 .parse("./src/test/resources/test.xml", "root", tags);
         Assert.assertEquals("AH", res.get("ah"));
         Assert.assertEquals("Hello !", res.get("hello"));
+    }
+
+    @Test
+    public void testSQL() throws SQLException, ClassNotFoundException {
+        Class.forName("org.postgresql.Driver");
+        Connection connection = DriverManager.getConnection(
+                "jdbc:postgresql://" +
+                        System.getenv("POSTGRE_HOST")+ ":" +
+                        System.getenv("POSTGRE_PORT") + "/" +
+                        System.getenv("POSTGRE_DB"),
+                System.getenv("BUCKET_ID"), System.getenv("PSSWD"));
+
     }
 }
