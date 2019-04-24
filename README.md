@@ -8,3 +8,8 @@ The projectis structured as follow :
 
 Here is the first idea of the project :
 ![Insee-NER-Pipeline](doc/Insee-NER-Pipeline.png)
+
+**TODO**: 
+* Search files on applishare (http requests) & filter with sql query
+* Find how to train a NER with CoreNLP : is the training file a simple
+  list of named entities or tagged publication ?
