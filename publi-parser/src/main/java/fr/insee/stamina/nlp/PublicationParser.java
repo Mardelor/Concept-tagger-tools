@@ -8,7 +8,9 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -40,13 +42,21 @@ public class PublicationParser {
 
     /**
      * Parse a XML file and format it into a map <\tag, content>
-     * @param xmlFilePath
-     *              file path of the publication
+     * @param inputStream
+     *              input stream from the file
+     * @param rootTag
+     *              root tag to parse from
+     * @param tagToParse
+     *              text tag to parse
      * @return  a map <\tag, content>
+     * @throws SAXException
+     *              in case of xml parsing problem
+     * @throws IOException
+     *              in case of I/O problems
      */
-    public HashMap<String, String> parse(String xmlFilePath, String rootTag, ArrayList<String> tagToParse)
+    public HashMap<String, String> parse(InputStream inputStream, String rootTag, ArrayList<String> tagToParse)
             throws SAXException, IOException {
-        Document doc = documentBuilder.parse(xmlFilePath);
+        Document doc = documentBuilder.parse(inputStream);
         Node root = doc.getElementsByTagName(rootTag).item(0);
 
         HashMap<String, String> map = new HashMap<>();
@@ -54,6 +64,25 @@ public class PublicationParser {
             map.put(tag, findTextTag(root, tag));
         }
         return map;
+    }
+
+    /**
+     * Parse a XML file and format it into a map <\tag, content>
+     * @param XMLPath
+     *              XML file path
+     * @param rootTag
+     *              root tag to parse from
+     * @param tagToParse
+     *              text tag to parse
+     * @return  a map <\tag, content>
+     * @throws SAXException
+     *              in case of xml parsing problem
+     * @throws IOException
+     *              in case of I/O problems
+     */
+    public HashMap<String, String> parse(String XMLPath, String rootTag, ArrayList<String> tagToParse)
+            throws SAXException, IOException {
+        return this.parse(new FileInputStream(XMLPath), rootTag, tagToParse);
     }
 
     /**

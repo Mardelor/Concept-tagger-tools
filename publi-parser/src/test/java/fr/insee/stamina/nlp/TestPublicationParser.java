@@ -15,6 +15,8 @@ import java.util.HashMap;
 
 public class TestPublicationParser {
 
+    // TODO : use properties file instead of env variables
+
     private static PublicationParser publicationParser;
 
     @BeforeClass
