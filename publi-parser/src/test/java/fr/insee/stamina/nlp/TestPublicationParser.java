@@ -46,16 +46,4 @@ public class TestPublicationParser {
         Assert.assertEquals("AH", res.get("ah"));
         Assert.assertEquals("Hello !", res.get("hello"));
     }
-
-    @Test
-    public void testSQL() throws SQLException, ClassNotFoundException {
-        Class.forName("org.postgresql.Driver");
-        Connection connection = DriverManager.getConnection(
-                "jdbc:postgresql://" +
-                        System.getenv("POSTGRE_HOST")+ ":" +
-                        System.getenv("POSTGRE_PORT") + "/" +
-                        System.getenv("POSTGRE_DB"),
-                System.getenv("BUCKET_ID"), System.getenv("PSSWD"));
-
-    }
 }

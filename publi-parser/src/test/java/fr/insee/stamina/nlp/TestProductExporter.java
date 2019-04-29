@@ -37,13 +37,11 @@ public class TestProductExporter {
 
     @Test
     public void testXMLDescriptor() throws Exception {
-        InputStream stream = exporter.getXMLDescriptor(new Product("2891810", "titre", "ip1657"));
+        InputStream stream = exporter.getXMLDescriptor(new Product("2891810", "titre", "ip1657.xml"));
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        String line;
-        do {
-            line = reader.readLine();
-            System.out.println(line);
-        } while (line != null && !line.equals(""));
+        Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", reader.readLine());
+        Assert.assertEquals("<publication-sans-sommaire afficher-sommaire=\"true\" afficher-sommaire-documentation=\"false\">", reader.readLine());
+        Assert.assertEquals("<titre>L’industrie manufacturière en 2016</titre>", reader.readLine());
     }
 }

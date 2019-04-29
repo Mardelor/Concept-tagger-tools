@@ -6,3 +6,6 @@ password =
 # BO authentification token
 httpURL =
 certificate =
+
+# BO filesystem path
+boPath =
