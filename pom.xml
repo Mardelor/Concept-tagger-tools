@@ -28,5 +28,6 @@
 		<module>publi-parser</module>
 		<module>concept-parser</module>
 		<module>s3-manager</module>
+		<module>tagger</module>
 	</modules>
 </project>

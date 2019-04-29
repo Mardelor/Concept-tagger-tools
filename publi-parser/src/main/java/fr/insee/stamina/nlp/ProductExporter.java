@@ -56,7 +56,7 @@ public class ProductExporter {
      * @param properties
      *              authentification properties
      */
-    public void initialize(Properties properties) throws Exception {
+    public void initialize(Properties properties) throws SQLException {
         this.DB_URL = properties.getProperty("jdbcURL");
         this.DB_USER = properties.getProperty("user");
         this.DB_PASSWORD = properties.getProperty("password");
@@ -114,22 +114,17 @@ public class ProductExporter {
      *              family id
      * @return  list of product ids
      */
-    public List<Product> getProducts(String idFamille) {
+    public List<Product> getProducts(String idFamille) throws SQLException {
         ArrayList<Product> products = new ArrayList<>();
         Statement statement;
         ResultSet results;
-        try {
-            statement = connection.createStatement();
-            results = statement.executeQuery("SELECT * FROM bo.p_produit WHERE idfamille=" + idFamille);
-            while (results.next()) {
-                Product product = new Product(results);
-                products.add(product);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // TODO : Complete with custom exceptions
+        statement = connection.createStatement();
+        results = statement.executeQuery("SELECT * FROM bo.p_produit WHERE idfamille=" + idFamille);
+        while (results.next()) {
+            Product product = new Product(results);
+            products.add(product);
         }
+
         return products;
     }
 
