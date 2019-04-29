@@ -1,9 +1,27 @@
 package fr.insee.stamina.nlp;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.util.EntityUtils;
 
+import javax.net.ssl.SSLContext;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +51,9 @@ public class ProductExporter {
     private String DB_PASSWORD;
 
     /**
-     * Certification path
+     * http token
      */
+    private String HTTP_URL;
     private String CERT_PATH;
 
     /**
@@ -47,19 +66,31 @@ public class ProductExporter {
      * @param properties
      *              authentification properties
      */
-    public void initialize(Properties properties) {
+    public void initialize(Properties properties) throws Exception {
         this.DB_URL = properties.getProperty("jdbcURL");
         this.DB_USER = properties.getProperty("user");
         this.DB_PASSWORD = properties.getProperty("password");
         this.CERT_PATH = properties.getProperty("certificate");
+        this.HTTP_URL = properties.getProperty("httpURL");
 
-        try {
-            this.connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        this.connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
-        // TODO : initialize http client
+        SSLConnectionSocketFactory sslSocketFactory;
+        SSLContext sslContext;
+
+        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+        X509Certificate serverCertificate =
+                (X509Certificate) certificateFactory.generateCertificate(new FileInputStream(CERT_PATH));
+        KeyStore trustStore  = KeyStore.getInstance(KeyStore.getDefaultType());
+        trustStore.load(null); // Creates empty key store
+        trustStore.setCertificateEntry("insee-bo", serverCertificate);
+
+        // Add the key store to the HTTP client SSL context
+        sslContext = SSLContexts.custom().loadTrustMaterial(trustStore, null).build();
+        sslSocketFactory = new SSLConnectionSocketFactory(sslContext);
+
+        // Initialize http client
+        httpClient = HttpClients.custom().setSSLContext(sslContext).build();
     }
 
     /**
@@ -68,8 +99,10 @@ public class ProductExporter {
     public void closeClients() {
         try {
             this.connection.close();
-            // TODO : close http client
-        } catch (SQLException e) {}
+            this.httpClient.close();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -91,14 +124,30 @@ public class ProductExporter {
     }
 
     /**
-     * Gets an input stream of the XML descriptor refered by the id product
-     * @param idProduct
-     *              product id
+     * Gets an input stream of the XML descriptor of a product
+     * @param product
+     *              product
      * @return  an input stream to read the xml descriptor
      */
-    public InputStream getXMLDescriptor(String idProduct) {
-        // TODO
-        return null;
+    public InputStream getXMLDescriptor(Product product) throws IOException {
+        HttpGet httpGet = new HttpGet(HTTP_URL+product.getId());
+        CloseableHttpResponse response = httpClient.execute(httpGet);
+        HttpEntity entity = response.getEntity();
+
+        // the bo response with a redirection page, so we look for the url by parsing the http response
+        String entityString = EntityUtils.toString(entity);
+        int startURL = entityString.indexOf("url=") + 4;
+        int endURL = entityString.indexOf("\">", startURL);
+        String redirectURL = entityString.substring(startURL, endURL);
+
+        HttpGet redirectGet = new HttpGet(redirectURL);
+        CloseableHttpResponse redirectResponse = httpClient.execute(redirectGet);
+        HttpEntity xmlDescriptor = redirectResponse.getEntity();
+
+        EntityUtils.consumeQuietly(entity);
+        response.close();
+
+        return xmlDescriptor.getContent();
     }
 
     /**
@@ -121,7 +170,7 @@ public class ProductExporter {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            // TODO : Complete with custom excpetions
+            // TODO : Complete with custom exceptions
         }
         return products;
     }
