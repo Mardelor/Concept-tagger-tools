@@ -1,0 +1,7 @@
+# DB authentification token
+jdbcURL =
+user =
+pasword =
+
+# BO authentification token
+certificate =

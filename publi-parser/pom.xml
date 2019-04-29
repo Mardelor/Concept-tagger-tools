@@ -21,18 +21,16 @@
             <groupId>fr.insee.stamina.nlp</groupId>
             <artifactId>s3-manager</artifactId>
             <version>0.1</version>
-            <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>fr.insee.stamina.nlp</groupId>
-            <artifactId>s3-manager</artifactId>
-            <version>0.1</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.5</version>
         </dependency>
     </dependencies>
 
