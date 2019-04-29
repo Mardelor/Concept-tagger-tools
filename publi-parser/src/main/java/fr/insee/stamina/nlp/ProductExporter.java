@@ -2,6 +2,7 @@ package fr.insee.stamina.nlp;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
@@ -62,6 +63,16 @@ public class ProductExporter {
     }
 
     /**
+     * Close both PostgresSQL & Http clients
+     */
+    public void closeClients() {
+        try {
+            this.connection.close();
+            // TODO : close http client
+        } catch (SQLException e) {}
+    }
+
+    /**
      * Download all product XML descriptor file from a family
      * @param idFamille
      *              family id
@@ -96,7 +107,7 @@ public class ProductExporter {
      *              family id
      * @return  list of product ids
      */
-    public List<Product> getProductIds(String idFamille) {
+    public List<Product> getProducts(String idFamille) {
         ArrayList<Product> products = new ArrayList<>();
         Statement statement;
         ResultSet results;
@@ -119,6 +130,9 @@ public class ProductExporter {
      * @return  instance
      */
     public static ProductExporter getInstance() {
+        if (instance == null) {
+            instance = new ProductExporter();
+        }
         return instance;
     }
 }

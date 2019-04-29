@@ -1,6 +1,7 @@
 package fr.insee.stamina.nlp;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Class representing a product
@@ -27,7 +28,18 @@ public class Product {
      * @param resultSet
      *              query result
      */
-    public Product(ResultSet resultSet) {
-        // TODO : complete
+    public Product(ResultSet resultSet) throws SQLException {
+        this.id = resultSet.getString("idproduit");
+        this.title = resultSet.getString("titre");
+        this.xmlPath = resultSet.getString("path");
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", xmlPath='" + xmlPath + '\'' +
+                '}';
     }
 }
