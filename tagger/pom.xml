@@ -17,11 +17,6 @@
             <artifactId>publi-parser</artifactId>
             <version>0.1</version>
         </dependency>
-        <dependency>
-            <groupId>fr.insee.stamina.nlp</groupId>
-            <artifactId>concept-parser</artifactId>
-            <version>0.1</version>
-        </dependency>
     </dependencies>
 
 </project>
