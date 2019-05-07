@@ -1,5 +1,6 @@
 # Files
 test-core-nlp-fr/doc/
+**/Ignore*.java
 **/logs/
 **/data/
 

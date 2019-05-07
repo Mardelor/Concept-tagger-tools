@@ -1,12 +1,13 @@
 package fr.insee.stamina.nlp;
 
-import fr.insee.stamina.nlp.S3FileManager;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
 
 public class TestS3FileManager {
 
@@ -23,9 +24,17 @@ public class TestS3FileManager {
     }
 
     @Test
-    public void testCopyObjectToFileSystem() {
+    public void testCopyObjectToFileSystem() throws IOException {
         s3FileManager.copyObjectToFileSystem(
-                System.getenv("BUCKET_ID"),"publications/test.xml", "./src/test/resources/test.xml");
+                System.getenv("BUCKET_ID"),"publications/test.xml", Paths.get("./src/test/resources/test.xml"));
         Assert.assertTrue((new File("./src/test/resources/test.xml")).exists());
+    }
+
+    @Test
+    public void getExample() throws Exception {
+        s3FileManager.copyObjectToFileSystem(
+                System.getenv("BUCKET_ID"),
+                System.getenv("BUCKET_ID") + "/publications/xml/1280638-ip1174.xml",
+                Paths.get("src/test/resources/ip1174.xml"));
     }
 }

@@ -1,17 +1,19 @@
 package fr.insee.stamina.nlp;
 
-import org.apache.http.impl.client.CloseableHttpClient;
+import java.io.*;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * Class gathering PostgreSQL client & s3client in order to fetch data from remote DB
+ * TODO : add http client
+ */
 public class ProductExporter {
     /**
      * singleton
@@ -24,9 +26,9 @@ public class ProductExporter {
     private Connection connection;
 
     /**
-     * HTTP Client
+     * S3 client
      */
-    // private CloseableHttpClient httpClient;
+    private S3FileManager s3FileManager;
 
     /**
      * postgre tokens
@@ -34,12 +36,6 @@ public class ProductExporter {
     private String DB_URL;
     private String DB_USER;
     private String DB_PASSWORD;
-
-    /**
-     * http token
-     */
-    // private String HTTP_URL;
-    // private String CERT_PATH;
 
     /**
      * XML descritpor products path
@@ -60,13 +56,10 @@ public class ProductExporter {
         this.DB_URL = properties.getProperty("jdbcURL");
         this.DB_USER = properties.getProperty("user");
         this.DB_PASSWORD = properties.getProperty("password");
-        // this.CERT_PATH = properties.getProperty("certificate");
-        // this.HTTP_URL = properties.getProperty("httpURL");
         this.XML_PRODUCTS_PATH = properties.getProperty("boPath");
 
         this.connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-
-        // TODO : retry with http
+        this.s3FileManager = S3FileManager.getInstance();
     }
 
     /**
@@ -84,18 +77,24 @@ public class ProductExporter {
      * Download all product XML descriptor file from a family
      * @param idFamille
      *              family id
+     * @param target
+     *              file destination
      */
-    public void downloadXMLDescriptors(String idFamille) {
+    public void downloadXMLDescriptors(String idFamille, Path target) throws IOException {
+        BufferedWriter writer = Files.newBufferedWriter(target);
         // TODO
     }
 
     /**
      * Download product XML descriptor file from its product id
-     * @param idProduct
-     *              product id
+     * @param product
+     *              product
+     * @param target
+     *              file destination
      */
-    public void downloadXMLDescriptor(String idProduct) {
-        // TODO
+    public void downloadXMLDescriptor(Product product, Path target) throws IOException {
+        InputStream stream = s3FileManager.readObject(DB_USER, String .format("publications/xml/%s-%s", product.getId(), product.getXmlPath()));
+        Files.copy(stream, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
     }
 
     /**
@@ -104,8 +103,14 @@ public class ProductExporter {
      *              product
      * @return  an input stream to read the xml descriptor
      */
-    public InputStream getXMLDescriptor(Product product) throws IOException {
-        return new FileInputStream(String.format("%s/%s/%s", XML_PRODUCTS_PATH, product.getId(), product.getXmlPath()));
+    public InputStream getXMLDescriptor(Product product, ExportMode mode) throws IOException {
+        if (mode.equals(ExportMode.LOCAL_FS)) {
+            return new FileInputStream(String.format("%s/%s/%s", XML_PRODUCTS_PATH, product.getId(), product.getXmlPath()));
+        } else if (mode.equals(ExportMode.S3_FS)) {
+            return s3FileManager.readObject(DB_USER, String.format("publications/xml/%s-%s", product.getId(), product.getXmlPath()));
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -114,18 +119,31 @@ public class ProductExporter {
      *              family id
      * @return  list of product ids
      */
-    public List<Product> getProducts(String idFamille) throws SQLException {
+    public List<Product> getProducts(int idFamille) throws SQLException {
         ArrayList<Product> products = new ArrayList<>();
-        Statement statement;
-        ResultSet results;
-        statement = connection.createStatement();
-        results = statement.executeQuery("SELECT * FROM bo.p_produit WHERE idfamille=" + idFamille);
+        String query = "SELECT * FROM bo.p_produit WHERE idfamille=" + idFamille;
+        ResultSet results = this.execute(query);
         while (results.next()) {
             Product product = new Product(results);
             products.add(product);
         }
-
         return products;
+    }
+
+    /**
+     * Query the Postgre DB
+     * @param query
+     *              SQL query
+     * @return  ResultSet object
+     * @throws SQLException
+     *              ...
+     */
+    public ResultSet execute(String query) throws SQLException {
+        Statement statement;
+        ResultSet results;
+        statement = connection.createStatement();
+        results = statement.executeQuery(query);
+        return results;
     }
 
     /**

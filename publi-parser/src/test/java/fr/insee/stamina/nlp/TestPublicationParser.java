@@ -6,12 +6,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Properties;
 
 public class TestPublicationParser {
 
@@ -31,19 +35,41 @@ public class TestPublicationParser {
 
     @Test
     public void testParse() throws SAXException, IOException {
-        ArrayList<String> tags = new ArrayList<>();
-        tags.add("hello");
-        tags.add("ah");
-
         S3FileManager s3 = S3FileManager.getInstance();
         s3.copyObjectToFileSystem(
                 System.getenv("BUCKET_ID"),
                 "publications/test.xml",
-                "./src/test/resources/test.xml"
+                Paths.get("./src/test/resources/test.xml")
         );
         HashMap<String, String> res = publicationParser
-                .parse("./src/test/resources/test.xml", "root", tags);
+                .parse("./src/test/resources/test.xml", "root", "hello", "ah");
         Assert.assertEquals("AH", res.get("ah"));
         Assert.assertEquals("Hello !", res.get("hello"));
+    }
+
+    @Test
+    public void testXSLT() throws Exception {
+        TransformerFactory factory = TransformerFactory.newInstance();
+        Transformer transformer = factory.newTransformer(new StreamSource("src/test/resources/publication-extract.xsl"));
+
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        transformer.transform(new StreamSource("src/test/resources/data/ip1174.xml"), new StreamResult(stream));
+
+        System.out.println(stream.toString().substring(38));
+    }
+
+    @Test
+    public void testParseXSLT() throws Exception {
+        S3FileManager s3 = S3FileManager.getInstance();
+        PublicationParser parser = PublicationParser.getInstance();
+
+        Properties properties = new Properties();
+        properties.setProperty("xls", "src/test/resources/publication-extract.xsl");
+
+        parser.initialize(properties);
+
+        InputStream input = s3.readObject(System.getenv("BUCKET_ID"), System.getenv("BUCKET_ID") + "/publications/xml/1280638-ip1174.xml");
+        System.out.print(parser.parse(input));
     }
 }
