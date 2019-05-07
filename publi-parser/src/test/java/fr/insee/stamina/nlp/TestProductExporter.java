@@ -1,9 +1,6 @@
 package fr.insee.stamina.nlp;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.*;
 import java.util.List;
@@ -29,19 +26,31 @@ public class TestProductExporter {
 
     @Test
     public void testSQLProducts() throws Exception {
-        List<Product> products = exporter.getProducts("51");
+        List<Product> products = exporter.getProducts(51);
 
         Assert.assertNotNull(products);
         Assert.assertTrue(products.size() > 630);
     }
 
     @Test
-    public void testXMLDescriptor() throws Exception {
-        InputStream stream = exporter.getXMLDescriptor(new Product("2891810", "titre", "ip1657.xml"));
+    public void testXMLDescriptorLocal() throws Exception {
+        InputStream stream = exporter.getXMLDescriptor(
+                new Product("2891810", "titre", "ip1657.xml"), ExportMode.LOCAL_FS);
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", reader.readLine());
         Assert.assertEquals("<publication-sans-sommaire afficher-sommaire=\"true\" afficher-sommaire-documentation=\"false\">", reader.readLine());
         Assert.assertEquals("<titre>L’industrie manufacturière en 2016</titre>", reader.readLine());
+    }
+
+    @Test
+    public void testXMLDescriptorS3() throws Exception {
+        InputStream stream = exporter.getXMLDescriptor(
+                new Product("2891810", "titre", "ip1657.xml"), ExportMode.S3_FS);
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", reader.readLine());
+        Assert.assertEquals("<publication-sans-sommaire afficher-sommaire=\"true\" afficher-sommaire-documentation=\"false\">", reader.readLine());
+        Assert.assertEquals("    <titre>L’industrie manufacturière en 2016</titre>", reader.readLine().replace("\t", ""));
     }
 }
