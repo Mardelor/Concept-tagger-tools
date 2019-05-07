@@ -58,7 +58,7 @@ public class FrenchPipeline {
 
 		// Adding reference of custom lemmatizer and pointer to lexicon file
 		// lexique_fr.txt can be found at https://sourceforge.net/projects/iramuteq/files/
-		frProperties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.FrenchLemmaAnnotator");
+		frProperties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.lemma.FrenchLemmaAnnotator");
 		frProperties.setProperty("french.lemma.lemmaFile", "src/main/resources/data/lexique_fr.txt");
 
 		// Adding pointer to entity file
