@@ -1,16 +1,15 @@
 # Concept-Tagger
 Core NLP pipeline including NER for statistical concepts.
 
-The projectis structured as follow :
-* **concept-parser** : module used to parse RDF Graph of concepts and format for Core NLP NER pipeline.
-* **publi-parser** : module used to parse XML publication files ad extract text from it.
-* **s3-manager** : little module useful for handling data from S3 DB.
+## Quickly
+Goal in this repository is to provide some Java code in order to do NER
+(Named Entity Recognition) in texts, giving a corpus of named entities
+and XML files containing texts ! It uses the NLP library Stanford CoreNLP.
 
-Here is the first idea of the project :
-![Insee-NER-Pipeline](doc/Insee-NER-Pipeline.png)
+For now, project is structured as follow :
+* **s3-manager** : a s3 (Simple Storage System) client
+* **concept-parser** : used to prepare concepts to the Core NLP pipeline
+* **publi-parser** : used to prepare XML files to the Core NLP pipeline
+* **tagger** : the Core NLP pipeline
+* **test-core-nlp-fr** : tests...
 
-**TODO**: 
-* Search files on applishare (http requests) & filter with sql query
-* Find how to train a NER with CoreNLP : is the training file a simple
-  list of named entities or tagged publication ?
-* Update README & figure
