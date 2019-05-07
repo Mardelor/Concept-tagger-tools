@@ -8,11 +8,19 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Properties;
 
 /**
  * Handle publication parsing : for now, only XML files
@@ -29,6 +37,11 @@ public class PublicationParser {
     private DocumentBuilder documentBuilder;
 
     /**
+     * Transformer to parse & filter XML files
+     */
+    private Transformer transformer;
+
+    /**
      * Build the document builder
      */
     private PublicationParser() {
@@ -38,6 +51,33 @@ public class PublicationParser {
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Initialize XML parser
+     * @param properties
+     *              properties file : must contain propery name "xsl"
+     * @throws TransformerConfigurationException
+     *              ...
+     */
+    public void initialize(Properties properties) throws TransformerConfigurationException {
+        TransformerFactory factory = TransformerFactory.newInstance();
+        this.transformer = factory.newTransformer(new StreamSource(properties.getProperty("xsl")));
+    }
+
+    /**
+     * Parse !
+     * @param stream
+     *              input stream
+     * @return  all match texte
+     * @throws TransformerException
+     *              ...
+     */
+    public String parse(InputStream stream) throws TransformerException {
+        ByteArrayOutputStream s = new ByteArrayOutputStream();
+        this.transformer.transform(new StreamSource(stream), new StreamResult(s));
+        // Delete XML header
+        return s.toString().substring(38);
     }
 
     /**
@@ -53,8 +93,9 @@ public class PublicationParser {
      *              in case of xml parsing problem
      * @throws IOException
      *              in case of I/O problems
+     * @deprecated
      */
-    public HashMap<String, String> parse(InputStream inputStream, String rootTag, ArrayList<String> tagToParse)
+    public HashMap<String, String> parse(InputStream inputStream, String rootTag, String... tagToParse)
             throws SAXException, IOException {
         Document doc = documentBuilder.parse(inputStream);
         Node root = doc.getElementsByTagName(rootTag).item(0);
@@ -79,8 +120,9 @@ public class PublicationParser {
      *              in case of xml parsing problem
      * @throws IOException
      *              in case of I/O problems
+     * @deprecated
      */
-    public HashMap<String, String> parse(String XMLPath, String rootTag, ArrayList<String> tagToParse)
+    public HashMap<String, String> parse(String XMLPath, String rootTag, String... tagToParse)
             throws SAXException, IOException {
         return this.parse(new FileInputStream(XMLPath), rootTag, tagToParse);
     }

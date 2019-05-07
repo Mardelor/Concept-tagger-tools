@@ -9,6 +9,10 @@ import com.amazonaws.services.s3.model.S3Object;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Properties;
 
 /**
  * Little class to handle files stored in Minio
@@ -50,29 +54,25 @@ public class S3FileManager {
      *              name of the bucket which contains the object
      * @param fileKey
      *              file path
-     * @param destinationPath
+     * @param target
      *              desired location of the file
      */
-    public void copyObjectToFileSystem(String bucketName, String fileKey, String destinationPath) {
-        File file = new File(destinationPath);
-        S3Object object = s3.getObject(bucketName, fileKey);
+    public void copyObjectToFileSystem(String bucketName, String fileKey, Path target) throws IOException {
+        InputStream stream = readObject(bucketName, fileKey);
+        Files.copy(stream, target);
+    }
 
-        try {
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            BufferedReader reader = new BufferedReader(new InputStreamReader(object.getObjectContent()));
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8));
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                writer.write(line);
-                writer.newLine();
-            }
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    /**
+     * Get object stream from the specified s3 file system file
+     * @param bucketName
+     *              bucket name
+     * @param fileKey
+     *              file key in s3
+     * @return  stream to read the file
+     */
+    public InputStream readObject(String bucketName, String fileKey) {
+        S3Object object = s3.getObject(bucketName, fileKey);
+        return object.getObjectContent();
     }
 
     /**

@@ -17,6 +17,11 @@
             <artifactId>publi-parser</artifactId>
             <version>0.1</version>
         </dependency>
+        <dependency>
+            <groupId>fr.insee.stamina.nlp</groupId>
+            <artifactId>s3-manager</artifactId>
+            <version>0.1</version>
+        </dependency>
     </dependencies>
 
 </project>
