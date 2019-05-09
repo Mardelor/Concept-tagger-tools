@@ -13,6 +13,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Properties;
@@ -65,11 +66,11 @@ public class TestPublicationParser {
         PublicationParser parser = PublicationParser.getInstance();
 
         Properties properties = new Properties();
-        properties.setProperty("xls", "src/test/resources/publication-extract.xsl");
+        properties.setProperty("xsl", "src/test/resources/publication-extract.xsl");
 
         parser.initialize(properties);
 
         InputStream input = s3.readObject(System.getenv("BUCKET_ID"), System.getenv("BUCKET_ID") + "/publications/xml/1280638-ip1174.xml");
-        System.out.print(parser.parse(input));
+        Files.write(Paths.get("src/test/resources/texte.txt"), parser.parse(input).getBytes());
     }
 }

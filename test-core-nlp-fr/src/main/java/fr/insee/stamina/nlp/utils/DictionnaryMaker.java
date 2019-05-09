@@ -26,7 +26,8 @@ public class DictionnaryMaker {
     public static void main(String args[]) {
         String input = "src/main/resources/concepts.csv";
         String lexique = "src/main/resources/lexique_fr.txt";
-        String output = "src/main/resources/filtered-concepts.tsv";
+        // String output = "src/main/resources/filtered-concepts.tsv";
+        String output = "src/main/resources/concepts.rules";
 
         buildLemmaMap(lexique);
         try (Stream<String> lines = Files.lines(Paths.get(input))) {
@@ -89,6 +90,7 @@ public class DictionnaryMaker {
         }
 
         String lemmaLibelle = builder.toString().substring(0, builder.lastIndexOf(" "));
-        return String.format("%s\t%s\t%s", libelle, lemmaLibelle, conceptId);
+        // return String.format("%s\tSTAT-CPT\t%s\t%s", libelle, lemmaLibelle, conceptId);
+        return String.format("%s\tSTAT-CPT", libelle);
     };
 }
