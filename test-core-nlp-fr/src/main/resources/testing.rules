@@ -8,4 +8,4 @@ tokens = { type: "CLASS", value: "edu.stanford.nlp.ling.CoreAnnotations$TokensAn
 
 # rules
 { ruleType: "tokens", pattern: ([{word:/[A-Za-zÀ-ÿ]+/}]), action: Annotate($0, ner, "O"), result: "O" }
-{ ruleType: "tokens", pattern: ([{word:"salaire"} & {tag:"NOUN"}] [{word:/[A-Za-zÀ-ÿ]+/} & {tag:"ADJ"}]), action: Annotate($0, ner, "STAT-CPT"), result: "STAT-CPT" }
+{ ruleType: "tokens", pattern: ([{word:/[A-Za-zÀ-ÿ]+/} & {lemma:"salaire"} & {tag:"NOUN"}]), action: Annotate($0, ner, "STAT-CPT"), result: "STAT-CPT" }

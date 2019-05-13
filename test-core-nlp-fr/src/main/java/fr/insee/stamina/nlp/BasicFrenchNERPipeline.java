@@ -30,14 +30,15 @@ public class BasicFrenchNERPipeline {
         properties.setProperty("ssplit.newlineIsSentenceBreak", "always");
         properties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.lemma.FrenchLemmaAnnotator");
         properties.setProperty("french.lemma.lemmaFile", "src/main/resources/lexique_fr.txt");
+        properties.setProperty("encoding", "UTF-8");
 
         // Run no models
         properties.setProperty("ner.model", "");
         // Specify regex rules
-        properties.setProperty("ner.fine.regexner.mapping", "src/main/resources/concepts.rules");
+        properties.setProperty("ner.fine.regexner.mapping", "src/main/resources/concepts-lemme.tsv");
         // Remove entity mention sub-annotator
         properties.setProperty("ner.buildEntityMentions", "false");
-        properties.setProperty("tokensregex.rules", "src/main/resources/testing.rules");
+        properties.setProperty("tokensregex.rules", "src/main/resources/concepts.rules");
 
         System.out.println("\nModified pipeline properties:");
         for (Object key : properties.keySet()) System.out.println(key + " = " + properties.get(key));
@@ -57,7 +58,8 @@ public class BasicFrenchNERPipeline {
         for (CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
             for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
                 Files.write(Paths.get("src/main/resources/results.xml"),
-                        String.format("<token>\n<word>%s</word>\n<POS>%s</POS>\n<NER>%s</NER>\n</token>\n", token.word(), token.tag(), token.ner()).getBytes(),
+                        String.format("<token>\n<word>%s</word>\n<lemma>%s</lemma>\n<POS>%s</POS>\n<NER>%s</NER>\n</token>\n",
+                                token.word(), token.lemma(), token.tag(), token.ner()).getBytes(),
                         StandardOpenOption.APPEND);
             }
         }

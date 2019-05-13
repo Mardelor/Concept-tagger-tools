@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -21,13 +22,13 @@ import java.util.stream.Stream;
  */
 public class DictionnaryMaker {
 
-    private static HashMap<String, String> lemmaMap;
+    private static HashMap<String, ArrayList<String>> lemmaMap;
 
     public static void main(String args[]) {
-        String input = "src/main/resources/concepts.csv";
+        String input = "src/main/resources/concepts.tsv";
         String lexique = "src/main/resources/lexique_fr.txt";
         // String output = "src/main/resources/filtered-concepts.tsv";
-        String output = "src/main/resources/concepts.rules";
+        String output = "src/main/resources/concepts-lemme.tsv";
 
         buildLemmaMap(lexique);
         try (Stream<String> lines = Files.lines(Paths.get(input))) {
@@ -46,7 +47,9 @@ public class DictionnaryMaker {
         lemmaMap = new HashMap<>();
         List<String> lemmaEntries = IOUtils.linesFromFile(lemmaFile);
         for (String lemmaEntry : lemmaEntries) {
-            lemmaMap.put(lemmaEntry.split("\\t")[0], lemmaEntry.split("\\t")[1]);
+            lemmaMap.put(lemmaEntry.split("\\t")[0], new ArrayList<>());
+            lemmaMap.get(lemmaEntry.split("\\t")[0]).add(lemmaEntry.split("\\t")[1]);
+            lemmaMap.get(lemmaEntry.split("\\t")[0]).add(lemmaEntry.split("\\t")[2]);
         }
     }
 
@@ -83,14 +86,18 @@ public class DictionnaryMaker {
 
         Pattern billy = Pattern.compile("[ ']");
         String words[] = billy.split(libelle);
-        StringBuilder builder = new StringBuilder();
+        StringBuilder lemmeBuilder = new StringBuilder();
+        StringBuilder posBuilder = new StringBuilder();
         for (String word : words) {
-            builder.append(lemmaMap.get(word));
-            builder.append(" ");
+            lemmeBuilder.append(lemmaMap.get(word).get(0));
+            posBuilder.append(lemmaMap.get(word).get(1));
+            lemmeBuilder.append(" ");
+            posBuilder.append(" ");
         }
 
-        String lemmaLibelle = builder.toString().substring(0, builder.lastIndexOf(" "));
+        String lemmaLibelle = lemmeBuilder.toString().substring(0, lemmeBuilder.lastIndexOf(" "));
+        String posLibelle = posBuilder.toString().substring(0, posBuilder.lastIndexOf(" "));
         // return String.format("%s\tSTAT-CPT\t%s\t%s", libelle, lemmaLibelle, conceptId);
-        return String.format("%s\tSTAT-CPT", libelle);
+        return String.format("%s\t%s\t%s", lemmaLibelle, posLibelle, "STAT-CPT");
     };
 }
