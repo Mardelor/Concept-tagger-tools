@@ -14,6 +14,7 @@ public class CoreNLPNERRulesMaker {
 
     private static HashMap<String, String> posMapper;
     private static String WORD = "/[A-Za-zÀ-ÿ]+/";
+    private static String ADJ_RULE = "[{tag:\"ADJ\"}]* ";
 
     public static void main(String args[]) throws IOException {
         String input = "src/main/resources/concepts-lemme.tsv";
@@ -21,7 +22,8 @@ public class CoreNLPNERRulesMaker {
 
         buildPosMapper();
         Files.write(Paths.get(output), ("ner = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$NamedEntityTagAnnotation\" }\n" +
-                "tokens = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation\" }\n\n").getBytes());
+                "tokens = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation\" }\n\n" +
+                "{ ruleType: \"tokens\", pattern: ([{word:/.+/}]), action: Annotate($0, ner, \"O\"), result: \"O\"}\n\n").getBytes());
         try (Stream<String> lines = Files.lines(Paths.get(input))) {
             Files.write(Paths.get(output), (Iterable<String>)lines.skip(1).filter(filterLine).map(mapToItem)::iterator, StandardOpenOption.APPEND);
         } catch (IOException e) {
@@ -54,9 +56,10 @@ public class CoreNLPNERRulesMaker {
         String lemmaLibelle = tags[0];
         String pos = tags[1];
 
-        StringBuilder tokensRule = new StringBuilder("(");
+        StringBuilder tokensRule = new StringBuilder("(" + ADJ_RULE);
         for (int i=0; i<pos.split(" ").length; i++) {
-            tokensRule.append(String.format("[{word:%s} & {lemma:\"%s\"} & {tag:\"%s\"}] ", WORD, lemmaLibelle.split(" ")[i], posMapper.get(pos.split(" ")[i])));
+            tokensRule.append(String.format("[{lemma:\"%s\"} & {tag:\"%s\"}] ", lemmaLibelle.split(" ")[i], posMapper.get(pos.split(" ")[i])));
+            tokensRule.append(ADJ_RULE);
         }
         String subRule = tokensRule.toString().substring(0, tokensRule.lastIndexOf(" ")) + ")";
         String rule = String.format("{ ruleType: \"tokens\", pattern: %s, action: Annotate($0, ner, \"%s\"), result: \"%s\" }", subRule, ner, ner);
