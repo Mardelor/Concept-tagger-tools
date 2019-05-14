@@ -23,7 +23,8 @@ public class CoreNLPNERRulesMaker {
         buildPosMapper();
         Files.write(Paths.get(output), ("ner = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$NamedEntityTagAnnotation\" }\n" +
                 "tokens = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation\" }\n\n" +
-                "{ ruleType: \"tokens\", pattern: ([{word:/.+/}]), action: Annotate($0, ner, \"O\"), result: \"O\"}\n\n").getBytes());
+                "{ ruleType: \"tokens\", pattern: ([{word:/.+/}]), action: Annotate($0, ner, \"O\"), result: \"O\"}\n\n").getBytes(),
+                StandardOpenOption.CREATE);
         try (Stream<String> lines = Files.lines(Paths.get(input))) {
             Files.write(Paths.get(output), (Iterable<String>)lines.skip(1).filter(filterLine).map(mapToItem)::iterator, StandardOpenOption.APPEND);
         } catch (IOException e) {

@@ -3,8 +3,8 @@
     <!-- TODO : remplir... -->
     <!-- root :  -->
     <xsl:template match="publication-sans-sommaire">
-            <xsl:apply-templates select="chapo/paragraphe"/>
+        <xsl:apply-templates select="chapo/paragraphe"/>
 
-            <xsl:apply-templates select="blocs/*//paragraphe"/>
+        <xsl:apply-templates select="blocs/*//paragraphe"/>
     </xsl:template>
 </xsl:stylesheet>

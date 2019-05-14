@@ -13,16 +13,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Properties;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class BasicFrenchNERPipeline {
 
-    public static void main(String[] args) throws IOException {
+    // TODO remettre un main adapté
+
+    public static String run(String text) throws IOException {
+        String annotatedText;
 
         Properties properties = new Properties();
         properties.load(IOUtils.readerFromString("StanfordCoreNLP-french.properties"));
-        System.out.println("Default pipeline properties:");
-        for (Object key : properties.keySet()) System.out.println(key + " = " + properties.get(key));
 
         properties.put("annotators", "tokenize, ssplit, pos, custom.lemma, depparse, tokensregex");
 
@@ -40,29 +42,26 @@ public class BasicFrenchNERPipeline {
         properties.setProperty("ner.buildEntityMentions", "false");
         properties.setProperty("tokensregex.rules", "src/main/resources/concepts.rules");
 
-        System.out.println("\nModified pipeline properties:");
-        for (Object key : properties.keySet()) System.out.println(key + " = " + properties.get(key));
-
         StanfordCoreNLP pipeline = new StanfordCoreNLP(properties);
-
-        Path path = Paths.get("src/main/resources/texte.txt");
-        String text = Files.lines(path).collect(Collectors.joining("\n"));
 
         Annotation document = new Annotation(text);
         pipeline.annotate(document);
 
-        Files.deleteIfExists(Paths.get("src/main/resources/results.xml"));
-        Files.write(Paths.get("src/main/resources/results.xml"),
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<annotations>\n".getBytes(),
-                StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+        StringBuilder builder = new StringBuilder();
         for (CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
             for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
-                Files.write(Paths.get("src/main/resources/results.xml"),
-                        String.format("<token>\n<word>%s</word>\n<lemma>%s</lemma>\n<POS>%s</POS>\n<NER>%s</NER>\n</token>\n",
-                                token.word(), token.lemma(), token.tag(), token.ner()).getBytes(),
-                        StandardOpenOption.APPEND);
+                if (token.ner().equals("STAT-CPT")) {
+                    builder.append(String.format("<STAT-CPT>%s</STAT-CPT>", token.word()));
+                } else {
+                    builder.append(token.word());
+                }
+                if (Pattern.matches("[,.;!]", token.word())) {
+                    builder.append(" ");
+                }
             }
         }
-        Files.write(Paths.get("src/main/resources/results.xml"), "</annotations>".getBytes(), StandardOpenOption.APPEND);
+        annotatedText = builder.toString();
+
+        return annotatedText;
     }
 }

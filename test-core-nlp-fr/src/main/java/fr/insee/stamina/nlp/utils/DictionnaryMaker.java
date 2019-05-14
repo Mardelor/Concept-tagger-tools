@@ -25,7 +25,7 @@ public class DictionnaryMaker {
     private static HashMap<String, ArrayList<String>> lemmaMap;
 
     public static void main(String args[]) {
-        String input = "src/main/resources/concepts.tsv";
+        String input = "src/main/resources/concepts.csv";
         String lexique = "src/main/resources/lexique_fr.txt";
         // String output = "src/main/resources/filtered-concepts.tsv";
         String output = "src/main/resources/concepts-lemme.tsv";
