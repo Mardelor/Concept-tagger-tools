@@ -6,6 +6,7 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,6 +20,10 @@ import java.util.stream.Collectors;
 public class BasicFrenchNERPipeline {
 
     // TODO remettre un main adapté
+
+    public static void main(String arg[]) throws IOException {
+        System.out.println(run(arg[0]));
+    }
 
     public static String run(String text) throws IOException {
         String annotatedText;
@@ -47,20 +52,20 @@ public class BasicFrenchNERPipeline {
         Annotation document = new Annotation(text);
         pipeline.annotate(document);
 
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder("");
         for (CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
             for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
+                if (!Pattern.matches("[,.;!]", token.word())) {
+                    builder.append(" ");
+                }
                 if (token.ner().equals("STAT-CPT")) {
-                    builder.append(String.format("<STAT-CPT>%s</STAT-CPT>", token.word()));
+                    builder.append(String.format("<STAT-CPT> %s </STAT-CPT>", token.word()));
                 } else {
                     builder.append(token.word());
                 }
-                if (Pattern.matches("[,.;!]", token.word())) {
-                    builder.append(" ");
-                }
             }
         }
-        annotatedText = builder.toString();
+        annotatedText = builder.toString().replace(" </STAT-CPT> <STAT-CPT>", "");
 
         return annotatedText;
     }

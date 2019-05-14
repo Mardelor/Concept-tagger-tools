@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
                 xmlns:nerpipeline="fr.insee.stamina.nlp.BasicFrenchNERPipeline">
-    <!-- root :  -->
     <xsl:output indent="yes"/>
 
     <xsl:template match="*">
@@ -16,6 +15,8 @@
     </xsl:template>
 
     <xsl:template match="paragraphe | titre">
-        <xsl:value-of select="nerpipeline:run(text())"/>
+        <xsl:copy>
+            <xsl:value-of select="nerpipeline:run(text())" disable-output-escaping="yes"/>
+        </xsl:copy>
     </xsl:template>
 </xsl:stylesheet>
