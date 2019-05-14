@@ -16,7 +16,7 @@
 
     <xsl:template match="paragraphe | titre">
         <xsl:copy>
-            <xsl:value-of select="nerpipeline:run(text())" disable-output-escaping="yes"/>
+            <xsl:value-of select="nerpipeline:run(.)" disable-output-escaping="yes"/>
         </xsl:copy>
     </xsl:template>
 </xsl:stylesheet>
