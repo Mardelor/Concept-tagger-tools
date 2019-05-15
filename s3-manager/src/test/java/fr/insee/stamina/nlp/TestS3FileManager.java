@@ -1,9 +1,6 @@
 package fr.insee.stamina.nlp;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +20,7 @@ public class TestS3FileManager {
         s3FileManager = null;
     }
 
+    @Ignore
     @Test
     public void testCopyObjectToFileSystem() throws IOException {
         s3FileManager.copyObjectToFileSystem(
