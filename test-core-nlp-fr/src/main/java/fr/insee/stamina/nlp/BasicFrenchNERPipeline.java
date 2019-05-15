@@ -39,12 +39,6 @@ public class BasicFrenchNERPipeline {
         properties.setProperty("french.lemma.lemmaFile", "src/main/resources/lexique_fr.txt");
         properties.setProperty("encoding", "UTF-8");
 
-        // Run no models
-        properties.setProperty("ner.model", "");
-        // Specify regex rules
-        properties.setProperty("ner.fine.regexner.mapping", "src/main/resources/concepts-lemme.tsv");
-        // Remove entity mention sub-annotator
-        properties.setProperty("ner.buildEntityMentions", "false");
         properties.setProperty("tokensregex.rules", "src/main/resources/concepts.rules");
 
         StanfordCoreNLP pipeline = new StanfordCoreNLP(properties);

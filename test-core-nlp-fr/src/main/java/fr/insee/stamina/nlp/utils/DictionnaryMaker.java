@@ -20,12 +20,11 @@ import java.util.stream.Stream;
  */
 public class DictionnaryMaker {
 
-    private static HashMap<String, ArrayList<String>> lemmaMap;
+    private static HashMap<String, String> lemmaMap;
 
     public static void main(String args[]) {
         String input = "src/main/resources/concepts.csv";
         String lexique = "src/main/resources/lexique_fr.txt";
-        // String output = "src/main/resources/filtered-concepts.tsv";
         String output = "src/main/resources/concepts-lemme.tsv";
 
         buildLemmaMap(lexique);
@@ -45,9 +44,7 @@ public class DictionnaryMaker {
         lemmaMap = new HashMap<>();
         List<String> lemmaEntries = IOUtils.linesFromFile(lemmaFile);
         for (String lemmaEntry : lemmaEntries) {
-            lemmaMap.put(lemmaEntry.split("\\t")[0], new ArrayList<>());
-            lemmaMap.get(lemmaEntry.split("\\t")[0]).add(lemmaEntry.split("\\t")[1]);
-            lemmaMap.get(lemmaEntry.split("\\t")[0]).add(lemmaEntry.split("\\t")[2]);
+            lemmaMap.put(lemmaEntry.split("\\t")[0], lemmaEntry.split("\\t")[1]);
         }
     }
 
@@ -85,17 +82,12 @@ public class DictionnaryMaker {
         Pattern billy = Pattern.compile("[ ']");
         String words[] = billy.split(libelle);
         StringBuilder lemmeBuilder = new StringBuilder();
-        StringBuilder posBuilder = new StringBuilder();
         for (String word : words) {
-            lemmeBuilder.append(lemmaMap.get(word).get(0));
-            posBuilder.append(lemmaMap.get(word).get(1));
+            lemmeBuilder.append(lemmaMap.get(word));
             lemmeBuilder.append(" ");
-            posBuilder.append(" ");
         }
 
         String lemmaLibelle = lemmeBuilder.toString().substring(0, lemmeBuilder.lastIndexOf(" "));
-        String posLibelle = posBuilder.toString().substring(0, posBuilder.lastIndexOf(" "));
-        // return String.format("%s\tSTAT-CPT\t%s\t%s", libelle, lemmaLibelle, conceptId);
-        return String.format("%s\t%s\t%s", lemmaLibelle, posLibelle, "STAT-CPT");
+        return String.format("%s\t%s\t%s", conceptId, libelle, lemmaLibelle);
     };
 }
