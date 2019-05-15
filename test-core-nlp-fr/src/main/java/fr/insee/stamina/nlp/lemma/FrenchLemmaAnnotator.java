@@ -1,4 +1,4 @@
-package fr.insee.stamina.nlp;
+package fr.insee.stamina.nlp.lemma;
 
 import java.util.Arrays;
 import java.util.Collections;

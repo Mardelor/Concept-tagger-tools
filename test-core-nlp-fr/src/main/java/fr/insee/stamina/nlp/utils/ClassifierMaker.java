@@ -1,4 +1,4 @@
-package fr.insee.stamina.nlp;
+package fr.insee.stamina.nlp.utils;
 
 import java.io.IOException;
 import java.nio.file.Files;
