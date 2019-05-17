@@ -55,7 +55,7 @@ public class TokensRegexRulesBuilder {
     /**
      * Default rule
      */
-    private static final String DEFAULT_RULE            = "{ ruleType: \"tokens\", pattern: ([{word:\".*\"}]), action: Annotate($0, ner, \"O\"), result: \"O\" }\n\n";
+    private static final String DEFAULT_RULE            = "{ ruleType: \"tokens\", pattern: ([{word:/.*/}]), action: Annotate($0, ner, \"O\"), result: \"O\" }\n\n";
 
     /**
      * Input file separator
@@ -130,7 +130,7 @@ public class TokensRegexRulesBuilder {
 
         String[] items = line.split(INPUT_SEPARATOR);
         String id = items[0];
-        String label = items[1];
+        String label = items[1].toLowerCase();
 
         Annotation annotation = new Annotation(label);
         pipeline.annotate(annotation);
