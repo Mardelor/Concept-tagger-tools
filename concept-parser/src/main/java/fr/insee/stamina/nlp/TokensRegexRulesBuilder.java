@@ -52,6 +52,10 @@ public class TokensRegexRulesBuilder {
      */
     private static final String RULE_HEADER             = "ner = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$NamedEntityTagAnnotation\" }\n" +
                                                             "tokens = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation\" }\n\n";
+    /**
+     * Default rule
+     */
+    private static final String DEFAULT_RULE            = "{ ruleType: \"tokens\", pattern: ([{word:\".*\"}]), action: Annotate($0, ner, \"O\"), result: \"O\" }\n\n";
 
     /**
      * Input file separator
@@ -99,7 +103,7 @@ public class TokensRegexRulesBuilder {
      *              in cas of IOException
      */
     public void build(Path input, Path output) throws TokensRegexRulesBuilderException {
-        try{ Files.write(output, RULE_HEADER.getBytes()); } catch (IOException e) {
+        try{ Files.write(output, (RULE_HEADER + DEFAULT_RULE).getBytes()); } catch (IOException e) {
             throw new TokensRegexRulesBuilderException(String.format("Unable to open %s", output));
         }
 
@@ -159,7 +163,8 @@ public class TokensRegexRulesBuilder {
         builder.append(ADJ_PATTERN);
         builder.append(" ");
         for (int i=0; i<poss.size(); i++) {
-            builder.append(String.format("[{lemma:\"%s\"} & {tag:\"%s\"}]%s", lemmas.get(i), poss.get(i), ADJ_PATTERN));
+            builder.append(String.format("[{lemma:\"%s\"} & {tag:\"%s\"}]%s",
+                    lemmas.get(i).replace("\"", "\\\""), poss.get(i), ADJ_PATTERN));
         }
         builder.append(")");
         return builder.toString();
