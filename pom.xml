@@ -29,5 +29,6 @@
 		<module>concept-parser</module>
 		<module>s3-manager</module>
 		<module>tagger</module>
+		<module>french-lemmatiser</module>
 	</modules>
 </project>

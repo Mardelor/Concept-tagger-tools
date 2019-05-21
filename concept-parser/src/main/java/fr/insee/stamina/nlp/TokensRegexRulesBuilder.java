@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -110,7 +109,7 @@ public class TokensRegexRulesBuilder {
         Stream<String> lines;
         try {
             lines = Files.lines(input, StandardCharsets.UTF_8);
-            lines = lines.sorted(new SimpleTokenComparator());
+            lines = lines.sorted(new ConceptTokenComparator());
         } catch (IOException e) {
             e.printStackTrace();
             throw new TokensRegexRulesBuilderException(String.format("Unable to open %s", input));

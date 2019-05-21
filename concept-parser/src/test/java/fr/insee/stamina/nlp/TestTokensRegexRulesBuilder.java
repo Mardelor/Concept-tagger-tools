@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-public class TestConceptParser {
+public class TestTokensRegexRulesBuilder {
 
     public TokensRegexRulesBuilder builder;
 
@@ -27,7 +27,7 @@ public class TestConceptParser {
 
         properties.setProperty("tokenize.options", "untokenizable=noneDelete");
         properties.setProperty("ssplit.newlineIsSentenceBreak", "always");
-        properties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.FrenchLemmaAnnotator");
+        properties.setProperty("customAnnotatorClass.custom.lemma", "FrenchLemmaAnnotator");
         properties.setProperty("french.lemma.lemmaFile", RESOURCES + "lexique_fr.txt");
         properties.setProperty("encoding", "UTF-8");
 

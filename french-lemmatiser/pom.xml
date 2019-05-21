@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>concept-parser</artifactId>
+    <artifactId>french-lemmatiser</artifactId>
 
     <dependencies>
         <dependency>
@@ -28,11 +28,6 @@
             <artifactId>stanford-corenlp</artifactId>
             <version>3.9.2</version>
             <classifier>models-french</classifier>
-        </dependency>
-        <dependency>
-            <groupId>fr.insee.stamina.nlp</groupId>
-            <artifactId>french-lemmatiser</artifactId>
-            <version>0.1</version>
         </dependency>
     </dependencies>
 </project>
