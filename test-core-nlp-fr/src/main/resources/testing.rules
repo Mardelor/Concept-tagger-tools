@@ -7,5 +7,5 @@ ner = { type: "CLASS", value: "edu.stanford.nlp.ling.CoreAnnotations$NamedEntity
 tokens = { type: "CLASS", value: "edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation" }
 
 # rules
-{ ruleType: "tokens", pattern: ([{word:/[A-Za-zÀ-ÿ]+/}]), action: Annotate($0, ner, "O"), result: "O" }
-{ ruleType: "tokens", pattern: ([{word:/[A-Za-zÀ-ÿ]+/} & {lemma:"salaire"} & {tag:"NOUN"}]), action: Annotate($0, ner, "STAT-CPT"), result: "STAT-CPT" }
+{ ruleType: "tokens", pattern: ([{word:/.*/}]), action: Annotate($0, ner, "O"), result: "O" }
+{ ruleType: "tokens", pattern: ([{word:/[A-Za-zÀ-ÿ]+/} & {lemma:"salaire"} & {tag:"NOUN"}]), action: Annotate($0, ner, "STAT-CPT"), result: ("STAT-CPT", "c1024") }

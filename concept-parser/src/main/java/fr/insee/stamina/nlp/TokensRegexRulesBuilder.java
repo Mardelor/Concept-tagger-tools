@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.function.Function;
@@ -23,27 +24,37 @@ public class TokensRegexRulesBuilder {
     /**
      * this class is a singleton
      */
-    private static TokensRegexRulesBuilder instance;
+    private static TokensRegexRulesBuilder instance = null;
 
     /**
      * Properties namespace
      */
-    private static final String PROP_NAMESPACE          = "rulesmaker";
+    public static final String PROP_NAMESPACE           = "rulesmaker";
 
     /**
      * Propterty name : input file separator
      */
-    private static final String PROP_INPUT_SEPARATOR    = "inputseparator";
+    public static final String PROP_INPUT_SEPARATOR     = "inputseparator";
 
     /**
      * Propterty name : ner tag
      */
-    private static final String PROP_NER_TAG            = "nertag";
+    public static final String PROP_NER_TAG             = "nertag";
 
     /**
      * Core NLP adjective pattern
      */
     private static final String ADJ_PATTERN             = "[{tag:\"ADJ\"}]*";
+
+    /**
+     * Header files
+     */
+    private static final String RULE_HEADER             = "ner = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$NamedEntityTagAnnotation\" }\n" +
+                                                            "tokens = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation\" }\n\n";
+    /**
+     * Default rule
+     */
+    private static final String DEFAULT_RULE            = "{ ruleType: \"tokens\", pattern: ([{word:/.*/}]), action: Annotate($0, ner, \"O\"), result: \"O\" }\n\n";
 
     /**
      * Input file separator
@@ -91,16 +102,19 @@ public class TokensRegexRulesBuilder {
      *              in cas of IOException
      */
     public void build(Path input, Path output) throws TokensRegexRulesBuilderException {
+        try{ Files.write(output, (RULE_HEADER + DEFAULT_RULE).getBytes()); } catch (IOException e) {
+            throw new TokensRegexRulesBuilderException(String.format("Unable to open %s", output));
+        }
+
         Stream<String> lines;
         try {
             lines = Files.lines(input, StandardCharsets.UTF_8);
+            lines = lines.sorted(new ConceptTokenComparator());
         } catch (IOException e) {
             e.printStackTrace();
             throw new TokensRegexRulesBuilderException(String.format("Unable to open %s", input));
         }
-        try {
-            Files.write(output, (Iterable<String>) lines.map(buildRule)::iterator);
-        } catch (IOException e) {
+        try { Files.write(output, (Iterable<String>) lines.map(buildRule)::iterator, StandardOpenOption.APPEND); } catch (IOException e) {
             e.printStackTrace();
             throw new TokensRegexRulesBuilderException(String.format("Unable to open %s", output));
         }
@@ -115,7 +129,7 @@ public class TokensRegexRulesBuilder {
 
         String[] items = line.split(INPUT_SEPARATOR);
         String id = items[0];
-        String label = items[1];
+        String label = items[1].toLowerCase();
 
         Annotation annotation = new Annotation(label);
         pipeline.annotate(annotation);
@@ -148,10 +162,21 @@ public class TokensRegexRulesBuilder {
         builder.append(ADJ_PATTERN);
         builder.append(" ");
         for (int i=0; i<poss.size(); i++) {
-            builder.append(String.format("[{lemma:\"%s\"} & {tag:\"%s\"}]%s", lemmas.get(i), poss.get(i), ADJ_PATTERN));
+            builder.append(String.format("[{lemma:\"%s\"} & {tag:\"%s\"}]%s",
+                    lemmas.get(i).replace("\"", "\\\""), poss.get(i), ADJ_PATTERN));
         }
         builder.append(")");
         return builder.toString();
     }
 
+    /**
+     * Gets the context instance
+     * @return  the TokensRegexRulesBuilder instance
+     */
+    public static TokensRegexRulesBuilder getInstance() {
+        if (instance == null) {
+            instance = new TokensRegexRulesBuilder();
+        }
+        return instance;
+    }
 }
