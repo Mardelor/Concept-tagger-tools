@@ -8,11 +8,9 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.S3Object;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.Properties;
+import java.util.ArrayList;
 
 /**
  * Little class to handle files stored in Minio
@@ -84,5 +82,49 @@ public class S3FileManager {
             instance = new S3FileManager();
         }
         return instance;
+    }
+
+    /**
+     * Utils for command line
+     * @param args
+     *              command and command argument
+     */
+    public static void main(String args[]) {
+        if (args.length < 3) {
+            System.out.println("Usage : minio <command> <command args>");
+            System.out.println("Commands:");
+            System.out.println("\tget <bucket> <files...>");
+            System.out.println("\tOptions:");
+            System.out.println("\t\t-req <bucket> <filelist>");
+        }
+        String command = args[0];
+        instance = getInstance();
+
+        switch (command) {
+            case "get" :
+                get(args);
+            default:
+                System.out.println(String.format("command %s not found", command));
+        }
+    }
+
+    /**
+     * Handle get command
+     * @param args
+     *              get command args
+     */
+    private static void get(String[] args) {
+        if (args[1].equals("-req")) {
+            // TODO : terminer
+        } else {
+            String bucket = args[1];
+            ArrayList<String> files = new ArrayList<>();
+            for (int i=2; i<args.length; i++) {
+                files.add(args[i]);
+            }
+            for (String file : files) {
+                // TODO : terminer
+            }
+        }
     }
 }

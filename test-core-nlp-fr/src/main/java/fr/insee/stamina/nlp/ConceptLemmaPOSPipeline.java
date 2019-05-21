@@ -34,11 +34,13 @@ public class ConceptLemmaPOSPipeline {
         Properties properties = new Properties();
         properties.load(IOUtils.readerFromString("StanfordCoreNLP-french.properties"));
 
-        properties.put("annotators", "tokenize, ssplit, pos");
+        properties.put("annotators", "tokenize, ssplit, pos, tokensregex");
 
         properties.setProperty("tokenize.options", "untokenizable=noneDelete");
         properties.setProperty("ssplit.newlineIsSentenceBreak", "always");
         properties.setProperty("encoding", "UTF-8");
+
+        properties.setProperty("tokensregex.rules", "src/main/resources/noun-group.rules");
 
         pipeline = new StanfordCoreNLP(properties);
     }

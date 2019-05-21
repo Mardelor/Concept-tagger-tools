@@ -39,7 +39,7 @@ public class BasicFrenchNERPipeline {
         properties.setProperty("french.lemma.lemmaFile", "src/main/resources/lexique_fr.txt");
         properties.setProperty("encoding", "UTF-8");
 
-        properties.setProperty("tokensregex.rules", "src/main/resources/concepts.rules");
+        properties.setProperty("tokensregex.rules", "src/main/resources/testing.rules");
 
         StanfordCoreNLP pipeline = new StanfordCoreNLP(properties);
 
