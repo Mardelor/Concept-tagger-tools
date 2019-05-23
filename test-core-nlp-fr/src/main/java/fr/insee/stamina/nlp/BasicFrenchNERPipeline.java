@@ -39,7 +39,7 @@ public class BasicFrenchNERPipeline {
         properties.setProperty("french.lemma.lemmaFile", "src/main/resources/lexique_fr.txt");
         properties.setProperty("encoding", "UTF-8");
 
-        properties.setProperty("tokensregex.rules", "src/main/resources/testing.rules");
+        properties.setProperty("tokensregex.rules", "src/main/resources/concepts.rules");
 
         StanfordCoreNLP pipeline = new StanfordCoreNLP(properties);
 
@@ -53,13 +53,13 @@ public class BasicFrenchNERPipeline {
                     builder.append(" ");
                 }
                 if (token.ner().equals("STAT-CPT")) {
-                    builder.append(String.format("<STAT-CPT> %s </STAT-CPT>", token.word()));
+                    builder.append(String.format("<STAT-CPT id=\"%s\"> %s </STAT-CPT>", token.get(CoreAnnotations.MentionsAnnotation.class), token.word()));
                 } else {
                     builder.append(token.word());
                 }
             }
         }
-        annotatedText = builder.toString().replace(" </STAT-CPT> <STAT-CPT>", "");
+        annotatedText = builder.toString().replaceAll(" </STAT-CPT>( *)<STAT-CPT id=([A-Za-z\\u00c0-\\u00ff ,;.\"\\(\\)]+)>", "");
 
         return annotatedText;
     }
