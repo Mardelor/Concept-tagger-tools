@@ -10,12 +10,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class CoreNLPNERRulesMaker {
@@ -44,7 +42,7 @@ public class CoreNLPNERRulesMaker {
                 "ner = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$NamedEntityTagAnnotation\" }\n" +
                 "tokens = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation\" }\n" +
                         "mention = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$MentionsAnnotation\" }\n\n" +
-                "{ ruleType: \"tokens\", pattern: ([{word:/.+/}]), action: Annotate($0, ner, \"O\"), result: \"O\"}\n\n").getBytes());
+                "{ ruleType: \"tokens\", pattern: ([{word:/.+/}]), action: (Annotate($0, ner, \"O\"), Annotate($0, mention, \"O\")), result: \"O\"}\n\n").getBytes());
         try (Stream<String> lines = Files.lines(Paths.get(input))) {
             Files.write(Paths.get(output), (Iterable<String>)lines.skip(1).sorted(new ConceptComparator()).map(mapToItem)::iterator, StandardOpenOption.APPEND);
         } catch (IOException e) {

@@ -13,9 +13,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BasicFrenchNERPipeline {
 
@@ -47,20 +49,41 @@ public class BasicFrenchNERPipeline {
         pipeline.annotate(document);
 
         StringBuilder builder = new StringBuilder("");
+        ArrayList<String> cBuilder = new ArrayList<>();
+        StringBuilder out = new StringBuilder();
+        CoreLabel current;
+        CoreLabel next = new CoreLabel();
+
         for (CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
-            for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
-                if (!Pattern.matches("[,.;!]", token.word())) {
-                    builder.append(" ");
+            for (int i=0; i < sentence.get(CoreAnnotations.TokensAnnotation.class).size(); i++) {
+                current = sentence.get(CoreAnnotations.TokensAnnotation.class).get(i);
+                if (i < sentence.get(CoreAnnotations.TokensAnnotation.class).size() - 1) {
+                    next = sentence.get(CoreAnnotations.TokensAnnotation.class).get(i + 1);
                 }
-                if (token.ner().equals("STAT-CPT")) {
-                    builder.append(String.format("<STAT-CPT id=\"%s\"> %s </STAT-CPT>", token.get(CoreAnnotations.MentionsAnnotation.class), token.word()));
+                if (current.ner().equals("O")) {
+                    if (Pattern.matches("[,.;]", current.word())) {
+                        out.append(current.originalText());
+                    } else {
+                        out.append(String.format(" %s", current.originalText()));
+                    }
                 } else {
-                    builder.append(token.word());
+                    if (cBuilder.isEmpty()) {
+                        cBuilder.add(String.format("%s\t%s", current.ner(), current.get(CoreAnnotations.MentionsAnnotation.class)));
+                        out.append(String.format(" <%s id=\"%s\">%s", current.ner(), current.get(CoreAnnotations.MentionsAnnotation.class), current.originalText()));
+                    } else {
+                        out.append(String.format(" %s", current.originalText()));
+                    }
+                    if (i < sentence.get(CoreAnnotations.TokensAnnotation.class).size() - 1 &&
+                            !cBuilder.get(cBuilder.size() - 1).equals(String.format("%s\t%s", next.ner(), next.get(CoreAnnotations.MentionsAnnotation.class)))) {
+                        cBuilder.clear();
+                        out.append(String.format("</%s>", current.ner()));
+                    }
                 }
+                builder.append(out.toString());
+                out = new StringBuilder("");
             }
         }
-        annotatedText = builder.toString().replaceAll(" </STAT-CPT>( *)<STAT-CPT id=([A-Za-z\\u00c0-\\u00ff ,;.\"\\(\\)]+)>", "");
 
-        return annotatedText;
+        return builder.toString();
     }
 }
