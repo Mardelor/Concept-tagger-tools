@@ -3,9 +3,11 @@ package fr.insee.stamina.nlp;
 import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.tokensregex.types.Value;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.TypesafeMap;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -69,7 +72,11 @@ public class BasicFrenchNERPipeline {
                 } else {
                     if (cBuilder.isEmpty()) {
                         cBuilder.add(String.format("%s\t%s", current.ner(), current.get(CoreAnnotations.MentionsAnnotation.class)));
-                        out.append(String.format(" <%s id=\"%s\">%s", current.ner(), current.get(CoreAnnotations.MentionsAnnotation.class), current.originalText()));
+                        out.append(String.format(" <%s id=\"%s\" uri=\"%s\">%s",
+                                current.ner(),
+                                ((String)(Object) current.get(CoreAnnotations.MentionsAnnotation.class)).split("\t")[0],
+                                ((String)(Object) current.get(CoreAnnotations.MentionsAnnotation.class)).split("\t")[1],
+                                current.originalText()));
                     } else {
                         out.append(String.format(" %s", current.originalText()));
                     }

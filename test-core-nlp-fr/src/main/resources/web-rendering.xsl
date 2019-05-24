@@ -27,9 +27,11 @@
     </xsl:template>
 
     <xsl:template match="STAT-CPT">
-        <xsl:variable name="uri"> <xsl:value-of select="@uri"/> </xsl:variable>
         <mark class="ner">
-            <xsl:apply-templates/>(<a href="${uri}"><xsl:value-of select="@id"/>)</a>
+            <xsl:apply-templates/>
+            (<a href="{@uri}">
+              <xsl:value-of select="@id"/>
+            </a>)
         </mark>
     </xsl:template>
 </xsl:stylesheet>

@@ -20,6 +20,7 @@ public class CoreNLPNERRulesMaker {
 
     private static HashMap<String, String> posMapper;
     private static String ADJ_RULE = "[{tag:\"ADJ\"}]* ";
+    private static final Integer SEP_POS = 45;
     private static StanfordCoreNLP pipeline;
 
     public static void main(String args[]) throws IOException {
@@ -70,8 +71,8 @@ public class CoreNLPNERRulesMaker {
      * Map an input line to a formatted line.
      */
     private static Function<String, String> mapToItem = line -> {
-        String tags[] = line.split("c[0-9]{4},");
-        String libelle = tags[1].toLowerCase().replaceAll("(\\(.*\\))", "");
+        String uri = line.substring(0, SEP_POS - 1);
+        String libelle = line.substring(SEP_POS, line.length()).toLowerCase().replaceAll("(\\(.*\\))", "");
 
         Annotation annotation = new Annotation(libelle);
         pipeline.annotate(annotation);
@@ -82,8 +83,8 @@ public class CoreNLPNERRulesMaker {
                     label.tag(), label.lemma().replace("\"", "\\\""), ADJ_RULE));
         }
         String subRule = tokenRule.toString().substring(0, tokenRule.lastIndexOf(" ")) + ")";
-        String rule = String.format("{ ruleType: \"tokens\", pattern: %s, action: (Annotate($0, ner, \"%s\"), Annotate($0, mention, \"%s\")), result: \"%s\" }",
-                subRule, "STAT-CPT", libelle.replace("\"", "\\\""), "STAT-CPT");
+        String rule = String.format("{ ruleType: \"tokens\", pattern: %s, action: (Annotate($0, ner, \"%s\"), Annotate($0, mention, \"%s\t%s\")), result: \"%s\" }",
+                subRule, "STAT-CPT", libelle.replace("\"", "\\\""), uri, "STAT-CPT");
 
         return rule;
     };

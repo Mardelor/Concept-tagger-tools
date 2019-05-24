@@ -1,9 +1,4 @@
-mark[class="ner"] {
-    background-color: blue;
-    color: white;
-}
-
-mark[class="id"] {
-    background-color: purple;
-    color: white;
+mark {
+    background-color: yellow;
+    color: black;
 }
