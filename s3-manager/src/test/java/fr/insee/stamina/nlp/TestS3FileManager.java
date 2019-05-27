@@ -37,6 +37,11 @@ public class TestS3FileManager {
 
         s3FileManager.copyObjectToFileSystem(
                 System.getenv("BUCKET_ID"),
+                System.getenv("BUCKET_ID") + "/publications/xml/3371834-ip1692.xml",
+                Paths.get("src/test/resources/ip1692.xml"));
+
+        s3FileManager.copyObjectToFileSystem(
+                System.getenv("BUCKET_ID"),
                 System.getenv("BUCKET_ID") + "/concepts/concepts-query-results.csv",
                 Paths.get("src/test/resources/concepts.csv"));
     }

@@ -5,6 +5,7 @@ import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.tokensregex.types.Value;
 import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.QuoteAttributionAnnotator;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.TypesafeMap;
@@ -76,12 +77,15 @@ public class BasicFrenchNERPipeline {
                                 current.ner(),
                                 ((String)(Object) current.get(CoreAnnotations.MentionsAnnotation.class)).split("\t")[0],
                                 ((String)(Object) current.get(CoreAnnotations.MentionsAnnotation.class)).split("\t")[1],
-                                current.originalText()));
+                                current.originalText().replaceAll("&", "\\&")));
                     } else {
-                        out.append(String.format(" %s", current.originalText()));
+                        out.append(String.format(" %s", current.originalText().replaceAll("&", "\\&")));
                     }
                     if (i < sentence.get(CoreAnnotations.TokensAnnotation.class).size() - 1 &&
                             !cBuilder.get(cBuilder.size() - 1).equals(String.format("%s\t%s", next.ner(), next.get(CoreAnnotations.MentionsAnnotation.class)))) {
+                        cBuilder.clear();
+                        out.append(String.format("</%s>", current.ner()));
+                    } else if (i == sentence.get(CoreAnnotations.TokensAnnotation.class).size() - 1) {
                         cBuilder.clear();
                         out.append(String.format("</%s>", current.ner()));
                     }

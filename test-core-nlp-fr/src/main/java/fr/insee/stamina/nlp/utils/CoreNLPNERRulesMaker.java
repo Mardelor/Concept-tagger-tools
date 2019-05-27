@@ -65,27 +65,43 @@ public class CoreNLPNERRulesMaker {
     /**
      * Filter predicate for input lines.
      */
-    private static Predicate<String> filterLine = line -> true;
+    private static Predicate<String> filterLine = line -> line.split(",").length > 3;
 
     /**
      * Map an input line to a formatted line.
      */
     private static Function<String, String> mapToItem = line -> {
-        String uri = line.substring(0, SEP_POS - 1);
-        String libelle = line.substring(SEP_POS, line.length()).toLowerCase().replaceAll("(\\(.*\\))", "");
+        String[] items = line.replaceAll("\"", "").split(",");
+        String uri = items[0];
+        String label = items[1].toLowerCase().replaceAll("(\\(.*\\))", "");
 
-        Annotation annotation = new Annotation(libelle);
+        Annotation annotation = new Annotation(label);
         pipeline.annotate(annotation);
 
         StringBuilder tokenRule = new StringBuilder("(" + ADJ_RULE);
-        for (CoreLabel label: annotation.get(CoreAnnotations.TokensAnnotation.class)) {
+        for (CoreLabel cLabel: annotation.get(CoreAnnotations.TokensAnnotation.class)) {
             tokenRule.append(String.format("[{tag:\"%s\"} & {lemma:\"%s\"}] %s",
-                    label.tag(), label.lemma().replace("\"", "\\\""), ADJ_RULE));
+                    cLabel.tag(), cLabel.lemma().replace("\"", "\\\""), ADJ_RULE));
         }
         String subRule = tokenRule.toString().substring(0, tokenRule.lastIndexOf(" ")) + ")";
         String rule = String.format("{ ruleType: \"tokens\", pattern: %s, action: (Annotate($0, ner, \"%s\"), Annotate($0, mention, \"%s\t%s\")), result: \"%s\" }",
-                subRule, "STAT-CPT", libelle.replace("\"", "\\\""), uri, "STAT-CPT");
+                subRule, "STAT-CPT", label.replace("\"", "\\\""), uri, "STAT-CPT");
 
+        if (items.length > 2) {
+            String accronym = items[2];
+
+            Annotation annAccro = new Annotation(accronym);
+            pipeline.annotate(annAccro);
+
+            StringBuilder AccroTokenRule = new StringBuilder("(" + ADJ_RULE);
+            for (CoreLabel cLabel: annAccro.get(CoreAnnotations.TokensAnnotation.class)) {
+                AccroTokenRule.append(String.format("[{tag:\"%s\"} & {lemma:\"%s\"}] %s",
+                        cLabel.tag(), cLabel.lemma().replace("\"", "\\\""), ADJ_RULE));
+            }
+            String AccroSubRule = AccroTokenRule.toString().substring(0, AccroTokenRule.lastIndexOf(" ")) + ")";
+            rule = String.format("%s\n{ ruleType: \"tokens\", pattern: %s, action: (Annotate($0, ner, \"%s\"), Annotate($0, mention, \"%s\t%s\")), result: \"%s\" }",
+                    rule, AccroSubRule, "STAT-CPT", label.replace("\"", "\\\""), uri, "STAT-CPT");
+        }
         return rule;
     };
 }

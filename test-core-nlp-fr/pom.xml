@@ -50,6 +50,18 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>fr.insee.stamina.nlp</groupId>
+            <artifactId>s3-manager</artifactId>
+            <version>0.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.insee.stamina.nlp</groupId>
+            <artifactId>publi-parser</artifactId>
+            <version>0.1</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
