@@ -1,11 +1,17 @@
 package fr.insee.stamina.nlp.utils;
 
+import edu.stanford.nlp.io.IOUtils;
+import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -13,20 +19,33 @@ import java.util.stream.Stream;
 public class CoreNLPNERRulesMaker {
 
     private static HashMap<String, String> posMapper;
-    private static String WORD = "/[A-Za-zÀ-ÿ]+/";
     private static String ADJ_RULE = "[{tag:\"ADJ\"}]* ";
+    private static final Integer SEP_POS = 45;
+    private static StanfordCoreNLP pipeline;
 
     public static void main(String args[]) throws IOException {
-        String input = "src/main/resources/concepts-lemme.tsv";
+        String input = "src/main/resources/concepts.csv";
         String output = "src/main/resources/concepts.rules";
 
-        buildPosMapper();
-        Files.write(Paths.get(output), ("ner = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$NamedEntityTagAnnotation\" }\n" +
-                "tokens = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation\" }\n\n" +
-                "{ ruleType: \"tokens\", pattern: ([{word:/.+/}]), action: Annotate($0, ner, \"O\"), result: \"O\"}\n\n").getBytes(),
-                StandardOpenOption.CREATE);
+        // buildPosMapper();
+        Properties properties = new Properties();
+        properties.load(IOUtils.readerFromString("StanfordCoreNLP-french.properties"));
+        properties.put("annotators", "tokenize, ssplit, pos, custom.lemma");
+
+        properties.setProperty("tokenize.options", "untokenizable=noneDelete");
+        properties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.lemma.FrenchLemmaAnnotator");
+        properties.setProperty("french.lemma.lemmaFile", "src/main/resources/lexique_fr.txt");
+        properties.setProperty("encoding", "UTF-8");
+
+        pipeline = new StanfordCoreNLP(properties);
+
+        Files.write(Paths.get(output), (
+                "ner = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$NamedEntityTagAnnotation\" }\n" +
+                "tokens = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation\" }\n" +
+                        "mention = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$MentionsAnnotation\" }\n\n" +
+                "{ ruleType: \"tokens\", pattern: ([{word:/.+/}]), action: (Annotate($0, ner, \"O\"), Annotate($0, mention, \"O\")), result: \"O\"}\n\n").getBytes());
         try (Stream<String> lines = Files.lines(Paths.get(input))) {
-            Files.write(Paths.get(output), (Iterable<String>)lines.skip(1).filter(filterLine).map(mapToItem)::iterator, StandardOpenOption.APPEND);
+            Files.write(Paths.get(output), (Iterable<String>)lines.skip(1).sorted(new ConceptComparator()).map(mapToItem)::iterator, StandardOpenOption.APPEND);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,18 +71,20 @@ public class CoreNLPNERRulesMaker {
      * Map an input line to a formatted line.
      */
     private static Function<String, String> mapToItem = line -> {
-        String tags[] = line.split("\\t");
-        String ner = tags[2];
-        String lemmaLibelle = tags[0];
-        String pos = tags[1];
+        String uri = line.substring(0, SEP_POS - 1);
+        String libelle = line.substring(SEP_POS, line.length()).toLowerCase().replaceAll("(\\(.*\\))", "");
 
-        StringBuilder tokensRule = new StringBuilder("(" + ADJ_RULE);
-        for (int i=0; i<pos.split(" ").length; i++) {
-            tokensRule.append(String.format("[{lemma:\"%s\"} & {tag:\"%s\"}] ", lemmaLibelle.split(" ")[i], posMapper.get(pos.split(" ")[i])));
-            tokensRule.append(ADJ_RULE);
+        Annotation annotation = new Annotation(libelle);
+        pipeline.annotate(annotation);
+
+        StringBuilder tokenRule = new StringBuilder("(" + ADJ_RULE);
+        for (CoreLabel label: annotation.get(CoreAnnotations.TokensAnnotation.class)) {
+            tokenRule.append(String.format("[{tag:\"%s\"} & {lemma:\"%s\"}] %s",
+                    label.tag(), label.lemma().replace("\"", "\\\""), ADJ_RULE));
         }
-        String subRule = tokensRule.toString().substring(0, tokensRule.lastIndexOf(" ")) + ")";
-        String rule = String.format("{ ruleType: \"tokens\", pattern: %s, action: Annotate($0, ner, \"%s\"), result: \"%s\" }", subRule, ner, ner);
+        String subRule = tokenRule.toString().substring(0, tokenRule.lastIndexOf(" ")) + ")";
+        String rule = String.format("{ ruleType: \"tokens\", pattern: %s, action: (Annotate($0, ner, \"%s\"), Annotate($0, mention, \"%s\t%s\")), result: \"%s\" }",
+                subRule, "STAT-CPT", libelle.replace("\"", "\\\""), uri, "STAT-CPT");
 
         return rule;
     };
