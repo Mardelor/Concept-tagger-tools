@@ -25,8 +25,8 @@ public class ConceptComparator implements Comparator<String> {
 
     @Override
     public int compare(String s, String p) {
-        Annotation as = new Annotation(s);
-        Annotation ap = new Annotation(p);
+        Annotation as = new Annotation(s.split("c[0-9]{4},")[1]);
+        Annotation ap = new Annotation(p.split("c[0-9]{4},")[1]);
         pipeline.annotate(as);
         pipeline.annotate(ap);
         return as.get(CoreAnnotations.TokensAnnotation.class).size() - ap.get(CoreAnnotations.TokensAnnotation.class).size();

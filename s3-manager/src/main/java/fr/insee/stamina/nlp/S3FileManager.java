@@ -73,6 +73,10 @@ public class S3FileManager {
         return object.getObjectContent();
     }
 
+    public void putObject(String bucketName, Path source, String targetKey) {
+        s3.putObject(bucketName, targetKey, source.toFile());
+    }
+
     /**
      * Get the instance
      * @return fr.insee.stamina.nlp.S3FileManager instance
