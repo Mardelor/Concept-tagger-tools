@@ -39,7 +39,7 @@ public class TestProductExporter {
     @Test
     public void testXMLDescriptorLocal() throws Exception {
         InputStream stream = exporter.getXMLDescriptor(
-                new Product("2891810", "titre", "ip1657.xml"), ExportMode.LOCAL_FS);
+                new Product("2891810", "titre", "ip1657.xml", null), ExportMode.LOCAL_FS);
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", reader.readLine());
@@ -50,7 +50,7 @@ public class TestProductExporter {
     @Test
     public void testXMLDescriptorS3() throws Exception {
         InputStream stream = exporter.getXMLDescriptor(
-                new Product("2891810", "titre", "ip1657.xml"), ExportMode.S3_FS);
+                new Product("2891810", "titre", "ip1657.xml", null), ExportMode.S3_FS);
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         Assert.assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", reader.readLine());

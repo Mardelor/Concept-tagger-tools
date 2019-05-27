@@ -1,5 +1,6 @@
 package fr.insee.stamina.nlp;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -24,6 +25,11 @@ public class Product {
     private String xmlPath;
 
     /**
+     * Embargo date
+     */
+    private Date diffusionDate;
+
+    /**
      * Construct product
      * @param id
      *              product id
@@ -32,10 +38,11 @@ public class Product {
      * @param xmlPath
      *              product xml path descriptor
      */
-    public Product(String id, String title, String xmlPath) {
+    public Product(String id, String title, String xmlPath, Date diffusionDate) {
         this.id = id;
         this.title = title;
         this.xmlPath = xmlPath;
+        this.diffusionDate = diffusionDate;
     }
 
     /**
@@ -46,7 +53,8 @@ public class Product {
     public Product(ResultSet resultSet) throws SQLException {
         this(resultSet.getString("idproduit"),
                 resultSet.getString("titre"),
-                resultSet.getString("path"));
+                resultSet.getString("path"),
+                resultSet.getDate("datediffusion"));
     }
 
     /**
@@ -70,12 +78,20 @@ public class Product {
         return xmlPath;
     }
 
+    /**
+     * @return  product embargo date
+     */
+    public Date getDiffusionDate() {
+        return diffusionDate;
+    }
+
     @Override
     public String toString() {
         return "Product{" +
                 "id='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", xmlPath='" + xmlPath + '\'' +
+                ", embargoDate=" + diffusionDate +
                 '}';
     }
 }

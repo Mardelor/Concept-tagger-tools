@@ -6,6 +6,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import java.nio.file.Paths;
 
 public class XSLTTransformer {
 
@@ -23,6 +24,10 @@ public class XSLTTransformer {
 
             transformer = factory.newTransformer(new StreamSource(web));
             transformer.transform(new StreamSource(output), new StreamResult(webout));
+
+            S3FileManager s3 = S3FileManager.getInstance();
+            s3.putObject(System.getenv("BUCKET_ID"), Paths.get(webout),
+                    String.format("%s/results/%s", System.getenv("BUCKET_ID"), webout.split("/")[webout.split("/").length - 1]));
         } catch (TransformerConfigurationException e) {
             e.printStackTrace();
             System.out.println("Failed to parse xsl stylesheet");

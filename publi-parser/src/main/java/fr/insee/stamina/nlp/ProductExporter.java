@@ -121,7 +121,7 @@ public class ProductExporter {
      */
     public List<Product> getProducts(int idFamille) throws SQLException {
         ArrayList<Product> products = new ArrayList<>();
-        String query = "SELECT * FROM bo.p_produit WHERE idfamille=" + idFamille;
+        String query = "SELECT * FROM bo.p_produit WHERE idfamille=" + idFamille + "AND langue=fr";
         ResultSet results = this.execute(query);
         while (results.next()) {
             Product product = new Product(results);
