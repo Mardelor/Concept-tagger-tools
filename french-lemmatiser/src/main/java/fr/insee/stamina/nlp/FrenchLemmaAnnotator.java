@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class FrenchLemmaAnnotator implements Annotator {
 
-	Map<String, String> wordToLemma = new HashMap<String, String>();
+	private Map<String, String> wordToLemma = new HashMap<String, String>();
 
 	public FrenchLemmaAnnotator(String name, Properties properties) {
 		// Load the lemma file; format should be TSV: {token}<tab>{lemma}

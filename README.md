@@ -13,3 +13,8 @@ For now, project is structured as follow :
 * **tagger** : the Core NLP pipeline
 * **test-core-nlp-fr** : tests...
 
+## For dev confort
+- [ ] Create a minio bucket for this app
+- [ ] Develop Data-export tool & merge it with s3 ??
+- [ ] Implements JUnit which test all of that
+- [ ] Build a test pipeline with data from minio bucket, which push results on IP in Minio !
