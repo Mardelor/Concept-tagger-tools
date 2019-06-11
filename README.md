@@ -7,14 +7,6 @@ Goal in this repository is to provide some Java code in order to do NER
 and XML files containing texts ! It uses the NLP library Stanford CoreNLP.
 
 For now, project is structured as follow :
-* **s3-manager** : a s3 (Simple Storage System) client
-* **concept-parser** : used to prepare concepts to the Core NLP pipeline
-* **publi-parser** : used to prepare XML files to the Core NLP pipeline
-* **tagger** : the Core NLP pipeline
-* **test-core-nlp-fr** : tests...
-
-## For dev confort
-- [ ] Create a minio bucket for this app
-- [ ] Develop Data-export tool & merge it with s3 ??
-- [ ] Implements JUnit which test all of that
-- [ ] Build a test pipeline with data from minio bucket, which push results on IP in Minio !
+* **s3-manager & publi-parser** : gather utils to load corpus datas
+* **test-core-nlp-fr** : some tests on Core NLP
+* **tagger & tokensregex-builder** : the core of the project, which contains tools to do NER
