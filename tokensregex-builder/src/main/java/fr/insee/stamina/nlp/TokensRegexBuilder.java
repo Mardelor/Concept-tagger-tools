@@ -165,7 +165,7 @@ public class TokensRegexBuilder {
             properties.load(IOUtils.readerFromString("StanfordCoreNLP-french.properties"));
             properties.put("annotators", "tokenize, ssplit, pos, custom.lemma");
             properties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.FrenchLemmaAnnotator");
-            properties.setProperty("french.lemma.lemmaFile", "src/main/resources/lexique_fr.txt");
+            properties.setProperty("french.lemma.lemmaFile", "src/main/resources/french-word-lemma.txt");
 
             TokensRegexBuilder builder = instance(properties);
 

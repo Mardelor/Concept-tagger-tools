@@ -1,0 +1,10 @@
+ner = { type: "CLASS", value: "edu.stanford.nlp.ling.CoreAnnotations$NamedEntityTagAnnotation" }
+tokens = { type: "CLASS", value: "edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation" }
+mention = { type: "CLASS", value: "edu.stanford.nlp.ling.CoreAnnotations$MentionsAnnotation" }
+
+{ ruleType: "tokens", pattern: ([{pos:"ADJ"} & {lemma:"petit"}][{tag:"ADJ"}]*[{pos:"NOUN"} & {lemma:"test"}]), action: (Annotate($0, ner, "TEST"), Annotate($0, mention, "c01")), result: "TEST"}
+{ ruleType: "tokens", pattern: ([{pos:"PROPN"} & {lemma:"PT"}]), action: (Annotate($0, ner, "TEST"), Annotate($0, mention, "c01")), result: "TEST"}
+{ ruleType: "tokens", pattern: ([{pos:"ADJ"} & {lemma:"gros"}][{tag:"ADJ"}]*[{pos:"NOUN"} & {lemma:"test"}]), action: (Annotate($0, ner, "TEST"), Annotate($0, mention, "c02")), result: "TEST"}
+{ ruleType: "tokens", pattern: ([{pos:"PROPN"} & {lemma:"GT"}]), action: (Annotate($0, ner, "TEST"), Annotate($0, mention, "c02")), result: "TEST"}
+{ ruleType: "tokens", pattern: ([{pos:"NOUN"} & {lemma:"concept"}][{tag:"ADJ"}]*[{pos:"ADJ"} & {lemma:"statistique"}]), action: (Annotate($0, ner, "CPT"), Annotate($0, mention, "c04")), result: "CPT"}
+{ ruleType: "tokens", pattern: ([{pos:"PROPN"} & {lemma:"STAT-CPT"}]), action: (Annotate($0, ner, "CPT"), Annotate($0, mention, "c04")), result: "CPT"}
