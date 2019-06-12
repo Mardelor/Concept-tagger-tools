@@ -22,14 +22,3 @@ variables:
   script:
     - cd $MODULE_NAME
     - mvn clean test
-
-
-build-trb:
-  <<: *build-template
-  variables:
-    MODULE_NAME: "tokensregex-builder"
-
-test-trb:
-  <<: *test-template
-  variables:
-    MODULE_NAME: "tokensregex-builder"
