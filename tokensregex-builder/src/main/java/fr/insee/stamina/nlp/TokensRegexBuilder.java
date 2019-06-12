@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 
 /**
  * Build rule file used by Stanford Core NLP to annotate documents
- * TODO : implement Entity Mention Annotator in Tokens Regex Rule
  */
 public class TokensRegexBuilder {
 
@@ -103,6 +102,24 @@ public class TokensRegexBuilder {
     }
 
     /**
+     * Transform a triple into a tokensregex
+     * @param label
+     *              entity label
+     * @param id
+     *              id
+     * @param nerTag
+     *              ner tag
+     * @return  the tokensregex rule
+     */
+    private String getRule(String label, String id, String nerTag) {
+        Annotation labelAnnotation = new Annotation(label);
+        pipeline.annotate(labelAnnotation);
+
+        String pattern = labelAnnotation.get(CoreAnnotations.TokensAnnotation.class).stream().map(buildWordPattern).reduce(buildPattern).orElse("");
+        return String.format(RULE_FORMAT, pattern, nerTag, id, nerTag);
+    }
+
+    /**
      * Concatenate word patterns
      */
     private BinaryOperator<String> buildPattern = (r, s) -> String.format("%s%s%s", r, ADJ_PATTERN, s);
@@ -114,20 +131,24 @@ public class TokensRegexBuilder {
 
     /**
      * Transform named entity to tokensregex rule
+     * @apiNote named entity can have multiple labels
      */
     private Function<String, String> buildRule = line -> {
         String[] items = line.split(INPUT_SEPARATOR);
-        String id = items[0];
-        String label = items[1];
-        String sLabel = items[2];
-        String nerTag = items[3];
+        String nerTag = items[0];
+        String id = items[1];
+        String label = items[2];
 
-        Annotation labelAnnotation = new Annotation(label);
-        pipeline.annotate(labelAnnotation);
+        String rule = getRule(label, id, nerTag);
 
-        String pattern = labelAnnotation.get(CoreAnnotations.TokensAnnotation.class).stream().map(buildWordPattern).reduce(buildPattern).orElse("");
+        if (items.length > 3) {
+            for (int i=3; i<items.length; i++) {
+                label = items[i];
+                rule = String.format("%s\n%s", rule, getRule(label, id, nerTag));
+            }
+        }
 
-        return String.format(RULE_FORMAT, pattern, nerTag, id, nerTag);
+        return rule;
     };
 
     /**
@@ -153,11 +174,11 @@ public class TokensRegexBuilder {
 
     /**
      * Build rule file from csv file in args
-     * @param arg
+     * @param args
      *              input file, output file
      */
-    public static void main(String arg[]) {
-        if (arg.length != 2) {
+    public static void main(String[] args) {
+        if (args.length != 2) {
             System.err.println("Usage : <input file> <output file>");
         }
         try {
@@ -169,7 +190,7 @@ public class TokensRegexBuilder {
 
             TokensRegexBuilder builder = instance(properties);
 
-            builder.build(Paths.get(arg[0]), Paths.get(arg[1]));
+            builder.build(Paths.get(args[0]), Paths.get(args[1]));
         } catch (IOException | TokensRegexBuilderException e) {
             e.printStackTrace();
         }
