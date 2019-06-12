@@ -1,72 +1,93 @@
 package fr.insee.stamina.nlp;
 
-import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
-import java.util.regex.Pattern;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 
+/**
+ * Custom NER pipeline, formatting output into specific xml format
+ */
 public class FrenchNERPipeline {
 
-    public static final String RESOURCES                    = "src/main/resources/";
-
-    public static final String PUNCTUATION_REGEX            = "[,.;!:]";
-
-    private static String NER_XML_TAG                       = "STAT-CPT";
-
+    /**
+     * Core NLP pipeline
+     */
     private static StanfordCoreNLP pipeline;
 
-    public static void init() throws IOException {
-        Properties properties = new Properties();
-        properties.load(IOUtils.readerFromString("StanfordCoreNLP-french.properties"));
-
-        properties.put("annotators", "tokenize, ssplit, pos, custom.lemma, depparse, tokensregex");
-
-        properties.setProperty("tokenize.options", "untokenizable=noneDelete");
-        properties.setProperty("ssplit.newlineIsSentenceBreak", "always");
-        properties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.FrenchLemmaAnnotator");
-        properties.setProperty("french.lemma.lemmaFile", RESOURCES + "lexique_fr.txt");
-        properties.setProperty("encoding", "UTF-8");
-
-        properties.setProperty("tokensregex.rules", RESOURCES + "concepts.rules");
-
-        init(properties);
-    }
-
+    /**
+     * Init pipeline
+     * @param properties
+     *              pipeline properties
+     */
     public static void init(Properties properties) {
         pipeline = new StanfordCoreNLP(properties);
     }
 
+    /**
+     * run pipeline on a text
+     * @param text
+     *              text to annotate
+     * @return  annotate named entities using xml tags
+     */
     public String run(String text) {
         Annotation annotation = new Annotation(text);
         pipeline.annotate(annotation);
 
-        return format(putXMLTags(annotation));
+        return annotation.get(CoreAnnotations.SentencesAnnotation.class).stream().map(format).reduce(String::concat).orElse("");
     }
 
-    private String format(String XMLTaggedText) {
-        return XMLTaggedText.replace(String.format("</%s> <%s>", NER_XML_TAG, NER_XML_TAG), "");
-    }
+    /**
+     * Annotate a sentence
+     */
+    private static Function<CoreMap, String> format = sentence -> {
+        ArrayList<CoreLabel> ne = new ArrayList<>();
+        StringBuilder out = new StringBuilder();
 
-    private String putXMLTags(Annotation annotatedText) {
-        StringBuilder builder = new StringBuilder("");
-        for (CoreMap sentence : annotatedText.get(CoreAnnotations.SentencesAnnotation.class)) {
-            for (CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
-                if (!Pattern.matches(PUNCTUATION_REGEX, token.word())) {
-                    builder.append(" ");
+        for (CoreLabel current: sentence.get(CoreAnnotations.TokensAnnotation.class)) {
+            if (current.ner().equals("O")) {
+                if (!ne.isEmpty()) {
+                    out.append(neFormat(ne));
+                    ne.clear();
                 }
-                if (token.ner().equals(NER_XML_TAG)) {
-                    builder.append(String.format("<%s> %s </%s>", NER_XML_TAG, token.word(), NER_XML_TAG));
+                if (current.tag().equals("PUNCT")) {
+                    out.append(current.originalText());
                 } else {
-                    builder.append(token.word());
+                    out.append(String.format(" %s", current.originalText()));
                 }
+            } else if (ne.isEmpty() ||
+                    (ne.get(0).ner().equals(current.ner()) && ne.get(0).get(CoreAnnotations.MentionsAnnotation.class).equals(current.get(CoreAnnotations.MentionsAnnotation.class)))) {
+                ne.add(current);
+            } else {
+                out.append(neFormat(ne));
+                ne.clear();
+                ne.add(current);
             }
         }
-        return builder.toString();
+
+        return out.toString();
+    };
+
+    /**
+     * put xml tags to a ne
+     * @param labels
+     *              list of Core NLP labels
+     * @return  string with xml tags
+     */
+    private static String neFormat(List<CoreLabel> labels) {
+        return String.format("<%s id=\"%s\">%s</%s>",
+                labels.get(0).ner(),
+                labels.get(0).get(CoreAnnotations.MentionsAnnotation.class),
+                labels.stream().map(CoreLabel::originalText).reduce(concatenate).orElse(""),
+                labels.get(0).ner());
     }
+
+    private static BinaryOperator<String> concatenate = (r, s) -> String.format("%s %s", r ,s);
 }

@@ -1,0 +1,24 @@
+annotators = tokenize, ssplit, pos, custom.lemma, tokensregex
+
+# tokenize
+tokenize.language = fr
+
+# pos
+# pos.model = edu/stanford/nlp/models/pos-tagger/french/french.tagger
+pos.model = edu/stanford/nlp/models/pos-tagger/french/french-ud.tagger
+
+# parse
+parse.model = edu/stanford/nlp/models/lexparser/frenchFactored.ser.gz
+
+# depparse
+depparse.model = edu/stanford/nlp/models/parser/nndep/UD_French.gz
+depparse.language = french
+
+# lemma
+custom.lemma = fr.insee.stamina.nlp.FrenchLemmaAnnotator
+french.lemma.lemmafile = src/main/resources/lexique_fr.txt
+
+# xsl transform
+xsl.sheet = src/main/resources/tagger.xsl
+xsl.input =
+xsl.output =
