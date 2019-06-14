@@ -1,6 +1,5 @@
 package fr.insee.stamina.nlp;
 
-import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.ling.CoreAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -8,7 +7,15 @@ import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.Annotator;
 import edu.stanford.nlp.util.ArraySet;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * French lemmatizer.
@@ -17,15 +24,21 @@ import java.util.*;
  */
 public class FrenchLemmaAnnotator implements Annotator {
 
-	private Map<String, String> wordToLemma = new HashMap<String, String>();
+	private Map<String, String> wordToLemma = new HashMap<>();
 
-	public FrenchLemmaAnnotator(String name, Properties properties) {
-		// Load the lemma file; format should be TSV: {token}<tab>{lemma}
-		String lemmaFile = properties.getProperty("french.lemma.lemmaFile");
-		List<String> lemmaEntries = IOUtils.linesFromFile(lemmaFile);
-		for (String lemmaEntry : lemmaEntries) {
-			wordToLemma.put(lemmaEntry.split("\\t")[0], lemmaEntry.split("\\t")[1]);
+	public FrenchLemmaAnnotator(String name, Properties properties) throws IOException {
+		InputStream input;
+		if (properties.containsKey("french.lemma.lemmaFile")) {
+			input = Files.newInputStream(Paths.get(properties.getProperty("french.lemma.lemmaFile")));
+		} else {
+			input = getClass().getResourceAsStream("lexicon/french-word-lemma.txt");
 		}
+		Function<String, String[]> split = line -> line.split("\\t");
+		Consumer<String[]> fillmap = items -> wordToLemma.put(items[0], items[1]);
+		new BufferedReader(new InputStreamReader(input))
+				.lines()
+				.map(split)
+				.forEach(fillmap);
 	}
 
 	@Override
@@ -48,8 +61,7 @@ public class FrenchLemmaAnnotator implements Annotator {
 		return Collections.unmodifiableSet(new ArraySet<>(Arrays.asList(
 			CoreAnnotations.TextAnnotation.class,
 			CoreAnnotations.TokensAnnotation.class,
-			CoreAnnotations.SentencesAnnotation.class,
-			CoreAnnotations.PartOfSpeechAnnotation.class
+			CoreAnnotations.SentencesAnnotation.class
 		)));
 	}
 }
