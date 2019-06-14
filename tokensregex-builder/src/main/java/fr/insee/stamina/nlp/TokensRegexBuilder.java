@@ -76,7 +76,7 @@ public class TokensRegexBuilder {
      */
     private TokensRegexBuilder(Properties properties) {
         pipeline = new StanfordCoreNLP(properties);
-        INPUT_SEPARATOR = (String) properties.getOrDefault(String.format("%s.%s", PROP_NAMESPACE, PROP_INPUT_SEPARATOR), ",");
+        INPUT_SEPARATOR = (String) properties.getOrDefault(String.format("%s.%s", PROP_NAMESPACE, PROP_INPUT_SEPARATOR), "[\"']?,[\"']?");
     }
 
     /**
@@ -94,7 +94,10 @@ public class TokensRegexBuilder {
     public void build(Path input, Path output) throws TokensRegexBuilderException {
         try(Stream<String> lines = Files.lines(input, StandardCharsets.UTF_8)) {
             Files.write(output, (RULE_HEADER).getBytes());
-            Files.write(output, (Iterable<String>)lines.distinct().sorted(new ConceptTokenComparator()).map(buildRule)::iterator, StandardOpenOption.APPEND);
+            Files.write(output, (Iterable<String>)lines
+                    .distinct()
+                    .sorted(new ConceptTokenComparator())
+                    .map(buildRule)::iterator, StandardOpenOption.APPEND);
         } catch (IOException e) {
             e.printStackTrace();
             throw new TokensRegexBuilderException("Fail to create rule file", e);
@@ -115,7 +118,10 @@ public class TokensRegexBuilder {
         Annotation labelAnnotation = new Annotation(label);
         pipeline.annotate(labelAnnotation);
 
-        String pattern = labelAnnotation.get(CoreAnnotations.TokensAnnotation.class).stream().map(buildWordPattern).reduce(buildPattern).orElse("");
+        String pattern = labelAnnotation.get(CoreAnnotations.TokensAnnotation.class).stream()
+                .map(buildWordPattern)
+                .reduce(buildPattern)
+                .orElse("");
         return String.format(RULE_FORMAT, pattern, nerTag, id, nerTag);
     }
 

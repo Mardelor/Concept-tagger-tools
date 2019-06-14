@@ -19,13 +19,13 @@ public class TestProductExporter {
         Properties properties = new Properties();
         properties.load(new FileInputStream("src/test/resources/auth.props"));
 
-        exporter = ProductExporter.getInstance();
-        exporter.initialize(properties);
+        // exporter = ProductExporter.getInstance();
+        // exporter.initialize(properties);
     }
 
     @AfterClass
     public static void tearDown() throws IOException {
-        exporter.closeClients();
+        // exporter.closeClients();
     }
 
     @Test
@@ -70,5 +70,11 @@ public class TestProductExporter {
                     String.format("%s/publications/xml/%s-%s", System.getenv("BUCKET_ID"), product.getId(), product.getXmlPath()),
                     Paths.get(String.format("src/test/resources/data/%s", product.getXmlPath())));
         }
+    }
+
+    @Test
+    public void cleanCSV() throws Exception {
+        CSVUtils.nerTag = "STAT-CPT";
+        CSVUtils.cleanCSV(Paths.get("../data/ne/concepts-query-results.csv"), Paths.get("../data/ne/concepts-clean.csv"));
     }
 }
