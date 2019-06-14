@@ -1,0 +1,4 @@
+Ceci    DET ceci
+est VERB    être
+un  DET un
+test    NOUN    test

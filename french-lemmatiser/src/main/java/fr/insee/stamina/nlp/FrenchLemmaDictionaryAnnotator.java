@@ -45,7 +45,7 @@ public class FrenchLemmaDictionaryAnnotator implements Annotator {
         if (properties.containsKey("french.lemma.lemmaFile")) {
             input = Files.newInputStream(Paths.get(properties.getProperty("french.lemma.lemmaFile")));
         } else {
-            input = getClass().getResourceAsStream("lexicon/french-word-pos-lemma.txt");
+            input = getClass().getResourceAsStream("/lexicon/french-word-pos-lemma.txt");
         }
         Function<String, String[]> split = line -> line.split("\\t");
         Consumer<String[]> fillmap = items -> lemmap.put(new Pair<>(items[0], items[1]), items[2]);

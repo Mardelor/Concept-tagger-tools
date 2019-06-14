@@ -9,6 +9,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.function.Predicate;
 
@@ -19,7 +21,7 @@ public class TestFrenchLemmaAnnotator {
     @Before
     public void setUp() throws Exception {
         properties = new Properties();
-        properties.load(getClass().getResourceAsStream("config/default.props"));
+        properties.load(getClass().getResourceAsStream("/config/default.props"));
     }
 
     @After
@@ -33,7 +35,7 @@ public class TestFrenchLemmaAnnotator {
         Annotation annotation = new Annotation("Ceci est un test");
         pipeline.annotate(annotation);
 
-        Predicate<CoreLabel> lemma = label -> label.lemma() != null;
+        Predicate<CoreLabel> lemma = label -> label.lemma() != null && !label.lemma().isEmpty();
         Assert.assertTrue(annotation.get(CoreAnnotations.TokensAnnotation.class)
                 .stream()
                 .allMatch(lemma));

@@ -19,7 +19,7 @@ public class TestFrenchLemmaDictionaryAnnotator {
     @Before
     public void setUp() throws Exception {
         properties = new Properties();
-        properties.load(getClass().getResourceAsStream("config/default.props"));
+        properties.load(getClass().getResourceAsStream("/config/default.props"));
         properties.setProperty("annotators", "tokenize, ssplit, pos, custom.lemma");
     }
 
@@ -34,7 +34,7 @@ public class TestFrenchLemmaDictionaryAnnotator {
         Annotation annotation = new Annotation("Ceci est un test");
         pipeline.annotate(annotation);
 
-        Predicate<CoreLabel> lemma = label -> label.lemma() != null;
+        Predicate<CoreLabel> lemma = label -> label.lemma() != null && !label.lemma().isEmpty();
         Assert.assertTrue(annotation.get(CoreAnnotations.TokensAnnotation.class)
                 .stream()
                 .allMatch(lemma));
