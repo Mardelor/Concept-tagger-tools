@@ -14,6 +14,3 @@
 .idea/
 out/
 **.iml
-
-# Java
-**.props

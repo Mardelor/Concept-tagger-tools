@@ -12,7 +12,7 @@ import org.junit.Test;
 import java.util.Properties;
 import java.util.function.Predicate;
 
-public class TestFrenchLemmaAnnotator {
+public class TestFrenchLemmaDictionaryAnnotator {
 
     private Properties properties;
 
@@ -20,6 +20,7 @@ public class TestFrenchLemmaAnnotator {
     public void setUp() throws Exception {
         properties = new Properties();
         properties.load(getClass().getResourceAsStream("config/default.props"));
+        properties.setProperty("annotators", "tokenize, ssplit, pos, custom.lemma");
     }
 
     @After
