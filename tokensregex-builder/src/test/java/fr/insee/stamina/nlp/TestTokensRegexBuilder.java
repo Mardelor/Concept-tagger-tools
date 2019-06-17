@@ -23,7 +23,6 @@ public class TestTokensRegexBuilder {
         properties.load(IOUtils.readerFromString("StanfordCoreNLP-french.properties"));
         properties.put("annotators", "tokenize, ssplit, pos, custom.lemma");
         properties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.FrenchLemmaAnnotator");
-        properties.setProperty("french.lemma.lemmaFile", "src/test/resources/lexique_fr.txt");
 
         builder = TokensRegexBuilder.instance(properties);
     }

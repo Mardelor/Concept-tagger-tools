@@ -11,7 +11,7 @@ variables:
   image: git.stable.innovation.insee.eu:50000/innovation/images-ci/jdk:$JDK_VERSION
   script:
     - cd $MODULE_NAME
-    - mvn package
+    - mvn clean install
 
 lemmatiser:
   <<: *build-template
