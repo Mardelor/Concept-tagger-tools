@@ -8,10 +8,7 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.Properties;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -94,6 +91,9 @@ public class TokensRegexBuilder {
      *              in cas of IOException
      */
     public void build(Path input, Path output) throws TokensRegexBuilderException {
+        if (!Files.exists(input)) {
+            throw new TokensRegexBuilderException("%s doesn't exist");
+        }
         try(Stream<String> lines = Files.lines(input, StandardCharsets.UTF_8)) {
             Files.write(output, (RULE_HEADER).getBytes());
             Files.write(output, (Iterable<String>)lines
@@ -154,7 +154,7 @@ public class TokensRegexBuilder {
 
         if (items.length > 3) {
             for (int i=3; i<items.length; i++) {
-                label = items[i].toLowerCase();
+                label = items[i];
                 rule = String.format("%s\n%s", rule, getRule(label, id, nerTag));
             }
         }
