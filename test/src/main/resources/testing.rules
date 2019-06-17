@@ -1,0 +1,12 @@
+# make all patterns case-sensitive
+ENV.defaultStringMatchFlags = 0
+ENV.defaultStringPatternFlags = 0
+
+# these Java classes will be used by the rules
+ner = { type: "CLASS", value: "edu.stanford.nlp.ling.CoreAnnotations$NamedEntityTagAnnotation" }
+tokens = { type: "CLASS", value: "edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation" }
+mention = { type: "CLASS", value: "edu.stanford.nlp.ling.CoreAnnotations$MentionsAnnotation" }
+
+# rules
+{ ruleType: "tokens", pattern: ([{word:/.*/}]), action: Annotate($0, ner, "O"), result: "O" }
+{ ruleType: "tokens", pattern: ([{lemma:"salaire"} & {tag:"NOUN"}]), action: (Annotate($0, ner, "STAT-CPT"), Annotate($0, mention, "c1024")), result: ("STAT-CPT", "c1024") }

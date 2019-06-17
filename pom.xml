@@ -24,11 +24,10 @@
 	</dependencies>
 
 	<modules>
-		<module>test-core-nlp-fr</module>
-		<module>publi-parser</module>
+		<module>test</module>
+		<module>utils</module>
 		<module>tokensregex-builder</module>
-		<module>s3-manager</module>
-		<module>tagger</module>
+		<module>insee-ner-tagger</module>
 		<module>french-lemmatiser</module>
 	</modules>
 </project>

@@ -1,35 +1,17 @@
 stages:
-  - build
   - test
 
 variables:
   JDK_VERSION : "8"
+  GIT_SSL_NO_VERIFY: "1"
 
-.build-template: &build-template
-  stage: build
-  only:
-    - dev
-  image: git.stable.innovation.insee.eu:50000/innovation/images-ci/jdk:$JDK_VERSION
-  script:
-    - cd $MODULE_NAME
-    - mvn build
-
-.test-template: &test-template
+main-module-test:
   stage: test
-  only:
-    - dev
   image: git.stable.innovation.insee.eu:50000/innovation/images-ci/jdk:$JDK_VERSION
   script:
-    - cd $MODULE_NAME
-    - mvn clean test
-
-
-build-trb:
-  <<: *build-template
-  variables:
-    MODULE_NAME: "tokensregex-builder"
-
-test-trb:
-  <<: *test-template
-  variables:
-    MODULE_NAME: "tokensregex-builder"
+    - cd french-lemmatiser
+    - mvn clean install
+    - cd ../tokensregex-builder
+    - mvn clean install
+    - cd ../insee-ner-tagger
+    - mvn clean install
