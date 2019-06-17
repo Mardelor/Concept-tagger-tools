@@ -8,13 +8,15 @@ import edu.stanford.nlp.pipeline.Annotator;
 import edu.stanford.nlp.util.ArraySet;
 import edu.stanford.nlp.util.Pair;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
+import java.util.function.Function;
 
 /**
  * Lemmatizer based on <<POS, word>, lemma> map
@@ -26,12 +28,7 @@ public class FrenchLemmaDictionaryAnnotator implements Annotator {
     /**
      * map POS and word to lemma
      */
-    private HashMap<Pair<String, String>, String> lemmap;
-
-    /**
-     * input file separator
-     */
-    public static final String SEPARATOR        = "\t";
+    private HashMap<Pair<String, String>, String> lemmap = new HashMap<>();
 
     /**
      * default lemma
@@ -43,23 +40,20 @@ public class FrenchLemmaDictionaryAnnotator implements Annotator {
      * @param properties
      *              lemma properties
      */
-    public FrenchLemmaDictionaryAnnotator(Properties properties) {
-        lemmap = new HashMap<>();
-        Path posWordLemmaFile = Paths.get(properties.getProperty("french.lemma.file"));
-        try (Stream<String> lines = Files.lines(posWordLemmaFile)) {
-            lines.forEach(fillLemma);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public FrenchLemmaDictionaryAnnotator(String name, Properties properties) throws IOException {
+        InputStream input;
+        if (properties.containsKey("french.lemma.lemmaFile")) {
+            input = Files.newInputStream(Paths.get(properties.getProperty("french.lemma.lemmaFile")));
+        } else {
+            input = getClass().getResourceAsStream("/lexicon/french-word-pos-lemma.txt");
         }
+        Function<String, String[]> split = line -> line.split("\\t");
+        Consumer<String[]> fillmap = items -> lemmap.put(new Pair<>(items[0], items[1]), items[2]);
+        new BufferedReader(new InputStreamReader(input))
+                .lines()
+                .map(split)
+                .forEach(fillmap);
     }
-
-    /**
-     * fill the lemmap from a triple word \t tag \t lemma
-     */
-    private Consumer<String> fillLemma = line -> {
-        String[] items = line.split(SEPARATOR);
-        lemmap.put(new Pair<>(items[0], items[1]), items[2]);
-    };
 
     @Override
     public void annotate(Annotation annotation) {

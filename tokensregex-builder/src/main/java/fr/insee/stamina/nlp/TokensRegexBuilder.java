@@ -8,10 +8,7 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.Properties;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -19,6 +16,7 @@ import java.util.stream.Stream;
 
 /**
  * Build rule file used by Stanford Core NLP to annotate documents
+ * TODO : add default properties in resources folder
  */
 public class TokensRegexBuilder {
 
@@ -57,7 +55,8 @@ public class TokensRegexBuilder {
      */
     private static final String RULE_HEADER             = "ner = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$NamedEntityTagAnnotation\" }\n" +
                                                           "tokens = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation\" }\n" +
-                                                          "mention = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$MentionsAnnotation\" }\n\n";
+                                                          "mention = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$MentionsAnnotation\" }\n\n" +
+                                                          "{ ruleType: \"tokens\", pattern: ([{word:/.*/}]), action: Annotate($0, ner, \"O\"), result: \"O\" }\n";
 
     /**
      * Word pattern format
@@ -76,7 +75,7 @@ public class TokensRegexBuilder {
      */
     private TokensRegexBuilder(Properties properties) {
         pipeline = new StanfordCoreNLP(properties);
-        INPUT_SEPARATOR = (String) properties.getOrDefault(String.format("%s.%s", PROP_NAMESPACE, PROP_INPUT_SEPARATOR), ",");
+        INPUT_SEPARATOR = (String) properties.getOrDefault(String.format("%s.%s", PROP_NAMESPACE, PROP_INPUT_SEPARATOR), "[\"']?,[\"']?");
     }
 
     /**
@@ -92,9 +91,15 @@ public class TokensRegexBuilder {
      *              in cas of IOException
      */
     public void build(Path input, Path output) throws TokensRegexBuilderException {
+        if (!Files.exists(input)) {
+            throw new TokensRegexBuilderException("%s doesn't exist");
+        }
         try(Stream<String> lines = Files.lines(input, StandardCharsets.UTF_8)) {
             Files.write(output, (RULE_HEADER).getBytes());
-            Files.write(output, (Iterable<String>)lines.distinct().sorted(new ConceptTokenComparator()).map(buildRule)::iterator, StandardOpenOption.APPEND);
+            Files.write(output, (Iterable<String>)lines
+                    .distinct()
+                    .sorted(new ConceptTokenComparator())
+                    .map(buildRule)::iterator, StandardOpenOption.APPEND);
         } catch (IOException e) {
             e.printStackTrace();
             throw new TokensRegexBuilderException("Fail to create rule file", e);
@@ -115,7 +120,10 @@ public class TokensRegexBuilder {
         Annotation labelAnnotation = new Annotation(label);
         pipeline.annotate(labelAnnotation);
 
-        String pattern = labelAnnotation.get(CoreAnnotations.TokensAnnotation.class).stream().map(buildWordPattern).reduce(buildPattern).orElse("");
+        String pattern = labelAnnotation.get(CoreAnnotations.TokensAnnotation.class).stream()
+                .map(buildWordPattern)
+                .reduce(buildPattern)
+                .orElse("");
         return String.format(RULE_FORMAT, pattern, nerTag, id, nerTag);
     }
 
@@ -127,7 +135,10 @@ public class TokensRegexBuilder {
     /**
      * Build word pattern from Core NLP labels
      */
-    private Function<CoreLabel, String> buildWordPattern = coreLabel -> String.format(WORD_PATTERN_FORMAT, coreLabel.tag(), coreLabel.lemma());
+    private Function<CoreLabel, String> buildWordPattern = coreLabel -> String.format(
+            WORD_PATTERN_FORMAT,
+            coreLabel.tag(),
+            coreLabel.lemma().replace("\"", "\\\""));
 
     /**
      * Transform named entity to tokensregex rule
@@ -137,7 +148,7 @@ public class TokensRegexBuilder {
         String[] items = line.split(INPUT_SEPARATOR);
         String nerTag = items[0];
         String id = items[1];
-        String label = items[2];
+        String label = items[2].toLowerCase();
 
         String rule = getRule(label, id, nerTag);
 
@@ -180,13 +191,13 @@ public class TokensRegexBuilder {
     public static void main(String[] args) {
         if (args.length != 2) {
             System.err.println("Usage : <input file> <output file>");
+            return;
         }
         try {
             Properties properties = new Properties();
             properties.load(IOUtils.readerFromString("StanfordCoreNLP-french.properties"));
             properties.put("annotators", "tokenize, ssplit, pos, custom.lemma");
             properties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.FrenchLemmaAnnotator");
-            properties.setProperty("french.lemma.lemmaFile", "src/main/resources/lexique_fr.txt");
 
             TokensRegexBuilder builder = instance(properties);
 
