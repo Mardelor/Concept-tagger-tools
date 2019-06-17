@@ -1,5 +1,4 @@
 # Files
-**/doc/
 **/logs/
 **/data/
 
@@ -13,4 +12,5 @@
 
 # IntelliJ
 .idea/
+out/
 **.iml
