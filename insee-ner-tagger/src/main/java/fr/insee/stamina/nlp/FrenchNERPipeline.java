@@ -41,16 +41,10 @@ public class FrenchNERPipeline {
         Annotation annotation = new Annotation(text);
         pipeline.annotate(annotation);
 
-        String ret = "ERROR";
-        try {
-            ret = annotation.get(CoreAnnotations.SentencesAnnotation.class).stream()
-                    .map(format)
-                    .reduce(String::concat)
-                    .orElse("");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ret;
+        return annotation.get(CoreAnnotations.SentencesAnnotation.class).stream()
+                .map(format)
+                .reduce(String::concat)
+                .orElse("");
     }
 
     /**
