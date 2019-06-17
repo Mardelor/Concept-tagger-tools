@@ -8,18 +8,22 @@ variables:
 
 .build-template: &build-template
   stage: build
-  only:
-    - dev
   image: git.stable.innovation.insee.eu:50000/innovation/images-ci/jdk:$JDK_VERSION
   script:
     - cd $MODULE_NAME
-    - mvn build
+    - mvn package
 
-.test-template: &test-template
-  stage: test
-  only:
-    - dev
-  image: git.stable.innovation.insee.eu:50000/innovation/images-ci/jdk:$JDK_VERSION
-  script:
-    - cd $MODULE_NAME
-    - mvn clean test
+lemmatiser:
+  <<: *build-template
+  variables:
+    MODULE_NAME: "french-lemmatiser"
+
+tokensregex-builder:
+  <<: *build-template
+  variables:
+    MODULE_NAME: "tokensregex-builder"
+
+#insee-ner-tagger:
+#  stage: test
+#  image: git.stable.innovation.insee.eu:50000/innovation/images-ci/jdk:$JDK_VERSION
+#  script:
