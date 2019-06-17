@@ -41,7 +41,16 @@ public class FrenchNERPipeline {
         Annotation annotation = new Annotation(text);
         pipeline.annotate(annotation);
 
-        return annotation.get(CoreAnnotations.SentencesAnnotation.class).stream().map(format).reduce(String::concat).orElse("");
+        String ret = "ERROR";
+        try {
+            ret = annotation.get(CoreAnnotations.SentencesAnnotation.class).stream()
+                    .map(format)
+                    .reduce(String::concat)
+                    .orElse("");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ret;
     }
 
     /**
@@ -63,7 +72,8 @@ public class FrenchNERPipeline {
                     out.append(String.format(" %s", current.originalText()));
                 }
             } else if (ne.isEmpty() ||
-                    (ne.get(0).ner().equals(current.ner()) && ne.get(0).get(CoreAnnotations.MentionsAnnotation.class).equals(current.get(CoreAnnotations.MentionsAnnotation.class)))) {
+                    (ne.get(0).ner().equals(current.ner()) &&
+                            (((String) (Object) ne.get(0).get(CoreAnnotations.MentionsAnnotation.class)).equals((String) (Object) current.get(CoreAnnotations.MentionsAnnotation.class))))) {
                 ne.add(current);
             } else {
                 out.append(neFormat(ne));

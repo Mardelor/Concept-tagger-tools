@@ -58,7 +58,8 @@ public class TokensRegexBuilder {
      */
     private static final String RULE_HEADER             = "ner = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$NamedEntityTagAnnotation\" }\n" +
                                                           "tokens = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation\" }\n" +
-                                                          "mention = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$MentionsAnnotation\" }\n\n";
+                                                          "mention = { type: \"CLASS\", value: \"edu.stanford.nlp.ling.CoreAnnotations$MentionsAnnotation\" }\n\n" +
+                                                          "{ ruleType: \"tokens\", pattern: ([{word:/.*/}]), action: Annotate($0, ner, \"O\"), result: \"O\" }\n";
 
     /**
      * Word pattern format
@@ -134,7 +135,10 @@ public class TokensRegexBuilder {
     /**
      * Build word pattern from Core NLP labels
      */
-    private Function<CoreLabel, String> buildWordPattern = coreLabel -> String.format(WORD_PATTERN_FORMAT, coreLabel.tag(), coreLabel.lemma());
+    private Function<CoreLabel, String> buildWordPattern = coreLabel -> String.format(
+            WORD_PATTERN_FORMAT,
+            coreLabel.tag(),
+            coreLabel.lemma().replace("\"", "\\\""));
 
     /**
      * Transform named entity to tokensregex rule
@@ -144,13 +148,13 @@ public class TokensRegexBuilder {
         String[] items = line.split(INPUT_SEPARATOR);
         String nerTag = items[0];
         String id = items[1];
-        String label = items[2];
+        String label = items[2].toLowerCase();
 
         String rule = getRule(label, id, nerTag);
 
         if (items.length > 3) {
             for (int i=3; i<items.length; i++) {
-                label = items[i];
+                label = items[i].toLowerCase();
                 rule = String.format("%s\n%s", rule, getRule(label, id, nerTag));
             }
         }
@@ -187,6 +191,7 @@ public class TokensRegexBuilder {
     public static void main(String[] args) {
         if (args.length != 2) {
             System.err.println("Usage : <input file> <output file>");
+            return;
         }
         try {
             Properties properties = new Properties();
