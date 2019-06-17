@@ -1,29 +1,31 @@
 stages:
-  - build
-  - test
+  - lemma
+  - tokensregex-builder
+  - insee-pipeline
 
 variables:
   JDK_VERSION : "8"
   GIT_SSL_NO_VERIFY: "1"
 
 .build-template: &build-template
-  stage: build
   image: git.stable.innovation.insee.eu:50000/innovation/images-ci/jdk:$JDK_VERSION
   script:
     - cd $MODULE_NAME
     - mvn clean install
 
-lemmatiser:
+lemma:
   <<: *build-template
+  stage: lemma
   variables:
     MODULE_NAME: "french-lemmatiser"
 
 tokensregex-builder:
   <<: *build-template
+  stage: tokensregex-builder
   variables:
     MODULE_NAME: "tokensregex-builder"
 
 #insee-ner-tagger:
-#  stage: test
+#  stage: insee-pipeline
 #  image: git.stable.innovation.insee.eu:50000/innovation/images-ci/jdk:$JDK_VERSION
 #  script:
