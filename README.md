@@ -5,23 +5,14 @@ New to **N**atural **L**anguage **P**rocessing ? [Try it !](https://corenlp.run)
 
 ## French
 
-Le but de ce dépôt est de proposer un service de reconnaissance d'entités
-nommées en utilisant la bibliothèque [Stanford Core NLP](https://stanfordnlp.github.io/CoreNLP). 
-Ce service contient trois principaux modules maven :
-* **french-lemmatiser** : ce module contient la classe permettant d'effectuer
-la lemmatisation, ie. trouver pour chaque mot dans une phrase, à partir du 
-contexte, le mot qui lui correspond dans le dictionnaire.
+Ce dépôt propose un service permettant d'effectuer la reconnaissance
+d'entités nommées sur des textes en français, à l'aide de la bibliothèque 
+[Stanford Core NLP](https://stanfordnlp.github.io/CoreNLP). Il contient
+trois modules maven:
 
-* **tokensregex-builder** : ce module maven permet, à partir d'une liste 
-d'entités nommées repérer par un libelle et un identifiant, de construire
-un fichier de règles permettant au second service de reconnaître les 
-entités nommées dans du texte.
-
-* **tagger** : ce module est un pipeline Stanford Core NLP qui effectue 
-les traitements **Part du discours**, **Lemmatisation** et **TokensRegex**.
-
-Les modules **test** et **utils** permettent respectivement de tester des 
-nouvelles fonctionnalités et de faciliter l'acquisition des données.
-
-## English
-TODO
+* **french-lemmatiser** : un lemmatiseur pour le français à base de dictionnaires
+* **tokensregex-builder** : un outil permettant de générer des règles à 
+intégrer dans un pipeline Stanford Core NLP permettant d'effectuer de la 
+reconnaissance d'entités nommées
+* **insee-ner-tagger** : plugin spécifique à l'insee permettant de tagger 
+les publications web4g avec les concepts insee
