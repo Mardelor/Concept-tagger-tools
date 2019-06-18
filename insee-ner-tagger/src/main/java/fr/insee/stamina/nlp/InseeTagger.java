@@ -6,6 +6,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -62,9 +65,24 @@ public class InseeTagger {
      *              output file
      * @throws TransformerException
      *              in case of xsl transformation exception
+     * @throws IOException
+     *              in case of io problems
      */
-    public void tag(Path input, Path output) throws TransformerException {
-        transformer.transform(new StreamSource(input.toFile()), new StreamResult(output.toFile()));
+    public void tag(Path input, Path output) throws TransformerException, IOException {
+        this.tag(Files.newInputStream(input), Files.newOutputStream(output));
+    }
+
+    /**
+     * tag a publication
+     * @param input
+     *              input stream
+     * @param output
+     *              output stream
+     * @throws TransformerException
+     *              in case of xsl transformation exception
+     */
+    public void tag(InputStream input, OutputStream output) throws TransformerException {
+        transformer.transform(new StreamSource(input), new StreamResult(output));
     }
 
     /**
