@@ -41,7 +41,7 @@ public class LocalTest extends Test {
         LocalTest test = new LocalTest();
         try {
             test.init();
-            test.run("SELECT * from bo.p_produit WHERE idfamille=51 AND datediffusion<'2019-01-01 00:00:00'");
+            test.run("SELECT * from bo.p_produit WHERE idfamille=51 AND datediffusion<'2019-01-01 00:00:00' AND langue='fr'");
         } catch (Exception e) {
             e.printStackTrace();
         }
