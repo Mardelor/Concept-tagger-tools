@@ -24,8 +24,7 @@
 	</dependencies>
 
 	<modules>
-		<module>test</module>
-		<module>utils</module>
+		<module>insee-test</module>
 		<module>tokensregex-builder</module>
 		<module>insee-ner-tagger</module>
 		<module>french-lemmatiser</module>
