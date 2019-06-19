@@ -38,10 +38,15 @@ public class LocalTest extends Test {
     }
 
     public static void main(String[] args) {
+        if (args.length != 1) {
+            System.err.println("Usage : <SQL query>");
+            return;
+        }
+        String query = args[0];
         LocalTest test = new LocalTest();
         try {
             test.init();
-            test.run("SELECT * from bo.p_produit WHERE idfamille=51 AND datediffusion<'2019-01-01 00:00:00' AND langue='fr'");
+            test.run(query);
         } catch (Exception e) {
             e.printStackTrace();
         }
