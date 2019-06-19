@@ -76,6 +76,10 @@ public class FrenchNERPipeline {
             }
         }
 
+        if(!ne.isEmpty()) {
+            out.append(neFormat(ne));
+        }
+
         return out.toString();
     };
 
