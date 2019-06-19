@@ -20,8 +20,5 @@ depparse.language = french
 # lemma
 customAnnotatorClass.custom.lemma = fr.insee.stamina.nlp.FrenchLemmaAnnotator
 
-# tokensregex
-tokensregex.rules = concepts.rules
-
 # encoding
 encoding = UTF-8

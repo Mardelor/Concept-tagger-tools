@@ -31,7 +31,7 @@ public class InseeTagger {
     /**
      * tokensregex insee rules
      */
-    private static final String INSEE_RULES          = "/insee-tagger.rules";
+    private static final String INSEE_RULES          = "insee-tagger.rules";
 
     /**
      * xslt transformer
