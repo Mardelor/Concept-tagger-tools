@@ -19,12 +19,7 @@ public class TestTokensRegexBuilder {
 
     @Before
     public void setUp() throws IOException {
-        Properties properties = new Properties();
-        properties.load(IOUtils.readerFromString("StanfordCoreNLP-french.properties"));
-        properties.put("annotators", "tokenize, ssplit, pos, custom.lemma");
-        properties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.FrenchLemmaAnnotator");
-
-        builder = TokensRegexBuilder.instance(properties);
+        builder = TokensRegexBuilder.instance();
     }
 
     @After

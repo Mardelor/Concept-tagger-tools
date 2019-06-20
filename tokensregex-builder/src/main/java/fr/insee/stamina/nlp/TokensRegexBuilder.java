@@ -1,6 +1,5 @@
 package fr.insee.stamina.nlp;
 
-import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
@@ -70,10 +69,10 @@ public class TokensRegexBuilder {
 
     /**
      * Build a TokensRegexBuilder from properties file
-     * @param properties
-     *              Stanford Core NLP property file
      */
-    private TokensRegexBuilder(Properties properties) {
+    private TokensRegexBuilder() throws IOException {
+        Properties properties = new Properties();
+        properties.load(getClass().getResourceAsStream("/tokensregex-builder.props"));
         pipeline = new StanfordCoreNLP(properties);
         INPUT_SEPARATOR = (String) properties.getOrDefault(String.format("%s.%s", PROP_NAMESPACE, PROP_INPUT_SEPARATOR), "[\"']?,[\"']?");
     }
@@ -166,19 +165,9 @@ public class TokensRegexBuilder {
      * Gets the context instance
      * @return  the TokensRegexBuilder instance
      */
-    public static TokensRegexBuilder instance() {
-        return instance;
-    }
-
-    /**
-     * Gets the context instance or create the one giving the properties
-     * @param properties
-     *              properties
-     * @return  the TokensRegexBuilder instance
-     */
-    public static TokensRegexBuilder instance(Properties properties) {
+    public static TokensRegexBuilder instance() throws IOException {
         if (instance == null) {
-            instance = new TokensRegexBuilder(properties);
+            instance = new TokensRegexBuilder();
         }
         return instance;
     }
@@ -194,13 +183,7 @@ public class TokensRegexBuilder {
             return;
         }
         try {
-            Properties properties = new Properties();
-            properties.load(IOUtils.readerFromString("StanfordCoreNLP-french.properties"));
-            properties.put("annotators", "tokenize, ssplit, pos, custom.lemma");
-            properties.setProperty("customAnnotatorClass.custom.lemma", "fr.insee.stamina.nlp.FrenchLemmaAnnotator");
-
-            TokensRegexBuilder builder = instance(properties);
-
+            TokensRegexBuilder builder = instance();
             builder.build(Paths.get(args[0]), Paths.get(args[1]));
         } catch (IOException | TokensRegexBuilderException e) {
             e.printStackTrace();

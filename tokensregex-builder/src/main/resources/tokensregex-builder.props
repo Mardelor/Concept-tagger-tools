@@ -1,0 +1,24 @@
+annotators = tokenize, ssplit, pos, custom.lemma
+
+# tokenize
+tokenize.language = fr
+tokenize.options = untokenizable=noneDelete
+
+# ssplit
+ssplit.newlineIsSentenceBreak = always
+
+# pos
+pos.model = edu/stanford/nlp/models/pos-tagger/french/french-ud.tagger
+
+# parse
+parse.model = edu/stanford/nlp/models/lexparser/frenchFactored.ser.gz
+
+# depparse
+depparse.model = edu/stanford/nlp/models/parser/nndep/UD_French.gz
+depparse.language = french
+
+# lemma
+customAnnotatorClass.custom.lemma = fr.insee.stamina.nlp.FrenchLemmaAnnotator
+
+# encoding
+encoding = UTF-8
