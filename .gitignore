@@ -1,6 +1,6 @@
 # Files
 **/logs/
-**/data/
+data/
 
 # Maven
 **/target/

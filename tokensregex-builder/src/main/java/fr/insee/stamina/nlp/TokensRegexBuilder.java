@@ -61,7 +61,7 @@ public class TokensRegexBuilder {
     /**
      * Word pattern format
      */
-    private static final String WORD_PATTERN_FORMAT     = "[{pos:\"%s\"} & {lemma:\"%s\"}]";
+    private static final String WORD_PATTERN_FORMAT     = "[{tag:\"%s\"} & {lemma:\"%s\"}]";
 
     /**
      * Tokensregex rule format

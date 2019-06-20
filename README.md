@@ -1,9 +1,8 @@
 # Concept-Tagger
-Core NLP pipeline including NER for statistical concepts.
+Un pipeline Stanford Core NLP pour reconnaître les concepts statistiques 
+dans les publications de l'insee.
 
-New to **N**atural **L**anguage **P**rocessing ? [Try it !](https://corenlp.run)
-
-## French
+**NLP** ?? [Par ici](https://corenlp.run)
 
 Ce dépôt propose un service permettant d'effectuer la reconnaissance
 d'entités nommées sur des textes en français, à l'aide de la bibliothèque 
@@ -16,3 +15,10 @@ intégrer dans un pipeline Stanford Core NLP permettant d'effectuer de la
 reconnaissance d'entités nommées
 * **insee-ner-tagger** : plugin spécifique à l'insee permettant de tagger 
 les publications web4g avec les concepts insee
+
+## Quick Start
+
+```bash
+git clone https://git.stable.innovation.insee.eu/s4pzz7/concept-tagger.git
+```
+...
