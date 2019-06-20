@@ -11,4 +11,8 @@ qu'un eventuel accronyme, un fichier de rèlges.
 Ce fichier de règle peut être lu par un pipeline Stanford Core NLP pour
 effectuer la reconnaissance des entités nommées du fichier csv.
 
+<<<<<<< HEAD
+TODO : schéma
+=======
 TODO : la suite
+>>>>>>> master

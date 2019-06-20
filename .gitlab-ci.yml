@@ -10,8 +10,8 @@ main-module-test:
   image: git.stable.innovation.insee.eu:50000/innovation/images-ci/jdk:$JDK_VERSION
   script:
     - cd french-lemmatiser
-    - mvn clean install
+    - mvn install
     - cd ../tokensregex-builder
-    - mvn clean install
+    - mvn install
     - cd ../insee-ner-tagger
-    - mvn clean install
+    - mvn install
